@@ -1,4 +1,4 @@
-# maliyya-hesabat-import streamlit as st
+import streamlit as st
 
 st.set_page_config(page_title="Maliyyə Analizi", page_icon="📊")
 st.title("📊 Aylıq Maliyyə Planlaması")
