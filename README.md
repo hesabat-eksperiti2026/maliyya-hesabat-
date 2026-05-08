@@ -1,1 +1,0 @@
-# maliyya-hesabat-
