@@ -1,170 +1,172 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
-# Səhifə parametrləri
-st.set_page_config(page_title="Büdcə Paneli", layout="wide", page_icon="💰")
+# Geniş və Müasir Konfiqurasiya
+st.set_page_config(page_title="Maliyyə Pro", layout="wide", page_icon="💎")
 
-# Mobil üçün xüsusi CSS və GitHub/Streamlit elementlərinin tam gizlədilməsi
+# Finex Referanslı Premium CSS
 st.markdown("""
     <style>
-    /* GitHub və Streamlit menyularını hər yerdə gizlət */
-    #MainMenu {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
-    header {visibility: hidden !important;}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+        background-color: #f4f7fa;
+    }
+    
+    #MainMenu, footer, header {visibility: hidden !important;}
     .stDeployButton {display:none !important;}
-    
-    /* Arxa fon rəngi */
-    .stApp {
-        background: #f8f9fa;
+
+    /* Kart Dizaynı */
+    .finance-card {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid #eef2f6;
+        margin-bottom: 20px;
     }
 
-    /* Tabların mobil və veb üçün dizaynı */
+    /* Tabları Finex stilinə gətiririk */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 5px !important;
-        display: flex !important;
-        justify-content: center !important;
-        background-color: #2c3e50 !important;
-        padding: 8px !important;
-        border-radius: 50px !important;
-        margin: 0 auto 20px auto !important;
-        width: 95% !important; /* Mobil üçün daha geniş */
-        max-width: 500px !important;
+        gap: 15px;
+        justify-content: center;
+        background-color: transparent;
     }
-
     .stTabs [data-baseweb="tab"] {
-        color: white !important;
-        font-size: 14px !important; /* Mobildə sığması üçün kiçildildi */
-        font-weight: bold !important;
-        height: 40px !important;
-        padding: 0px 15px !important;
-        border-radius: 25px !important;
-    }
-
-    .stTabs [aria-selected="true"] {
-        background-color: #3498db !important;
-    }
-
-    /* Kart dizaynı */
-    .main-card {
         background-color: white;
-        padding: 15px;
+        border: 1px solid #dee2e6;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
+        padding: 10px 30px;
+        font-weight: 600;
+        transition: 0.3s;
     }
-
-    /* Rəqəm girişləri və düymələr */
-    .stNumberInput input {
-        font-size: 16px !important; /* Zoom olmaması üçün */
-    }
-
-    div.stButton > button {
-        background-color: #27ae60 !important;
+    .stTabs [aria-selected="true"] {
+        background-color: #0061ff !important;
         color: white !important;
-        border-radius: 8px !important;
-        width: 100% !important;
-        margin-top: 10px !important;
+        border: none;
     }
 
-    /* Metrik rəqəmlərini mobildə kiçiltmək */
-    [data-testid="stMetricValue"] {
-        font-size: 1.4rem !important;
+    /* Metriklər */
+    [data-testid="stMetric"] {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 15px;
+        border-left: 5px solid #0061ff;
     }
     
-    /* Mobil üçün sütun tənzimləməsi */
-    @media (max-width: 640px) {
-        .stColumns {
-            display: block !important;
-        }
-        .stColumn {
-            width: 100% !important;
-            margin-bottom: 10px !important;
-        }
+    /* Düymə */
+    .stButton>button {
+        background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-weight: bold;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(0,97,255,0.3);
     }
     </style>
     """, unsafe_allow_html=True)
 
+# Məlumatın saxlanılması
 if 'real_xercler' not in st.session_state:
     st.session_state.real_xercler = []
 
+# Sabitlər
 MAAS = 3000
 QAYNANA_KOMEY = 50
+BUTUN_GELIR = MAAS + QAYNANA_KOMEY
 
-st.markdown("<h2 style='text-align: center; color: #2c3e50; padding-bottom: 10px;'>💎 Ailə Büdcəsi</h2>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #1e293b;'>📊 Personal Finance Analytics</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b;'>2026 May Dövrü Üçün Ağıllı Büdcə İdarəetməsi</p>", unsafe_allow_html=True)
 
-# TABLAR
-tab1, tab2 = st.tabs(["📊 PLAN", "💸 XƏRC"])
+tab1, tab2, tab3 = st.tabs(["💎 STRATEJİ PLAN", "💸 CANLI İZLƏMƏ", "📈 ANALİTİKA"])
 
 with tab1:
-    col1, col2 = st.columns(2)
+    c1, c2 = st.columns([1, 1], gap="large")
     
-    def input_row(icon, label, val_default, key_id):
-        c_label, c_val = st.columns([3, 2])
-        c_label.markdown(f"<div style='padding-top:8px; font-size: 15px;'>{icon} {label}</div>", unsafe_allow_html=True)
-        val = c_val.number_input("", value=int(val_default), step=1, format="%d", key=f"v_{key_id}", label_visibility="collapsed")
-        return val
-
-    with col1:
-        st.markdown("<div class='main-card'><b>📌 Sabit</b>", unsafe_allow_html=True)
-        v1 = input_row("💳", "Kredit", 650, 1)
-        v2 = input_row("🔌", "Komunal", 150, 2)
-        v3 = input_row("👩‍💼", "Şaxnuz", 700, 3)
-        v4 = input_row("🤝", "Borc", 150, 4)
-        v5 = input_row("🛒", "Böyük Baz.", 400, 5)
-        v6 = input_row("👶", "Arslan", 210, 6)
+    with c1:
+        st.markdown("<div class='finance-card'>", unsafe_allow_html=True)
+        st.subheader("📌 Əsas Öhdəliklər")
+        v1 = st.number_input("💳 Kredit", value=650, step=50, format="%d")
+        v2 = st.number_input("🔌 Kommunal", value=150, step=10, format="%d")
+        v3 = st.number_input("👩‍💼 Şaxnuz (Maaş)", value=700, step=50, format="%d")
+        v4 = st.number_input("🤝 Borc/Ehtiyat", value=150, step=50, format="%d")
+        v5 = st.number_input("🛒 Böyük Bazarlıq", value=400, step=20, format="%d")
+        v6 = st.number_input("👶 Arslan (Qida/Bezi)", value=210, step=10, format="%d")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    with col2:
-        st.markdown("<div class='main-card'><b>🔄 Dəyişən</b>", unsafe_allow_html=True)
-        v7 = input_row("🍔", "Restoran", 100, 7)
-        v8 = input_row("⛽", "Benzin", 50, 8)
-        v9 = input_row("📦", "Temu", 50, 9)
-        v10 = input_row("🐥", "Toyuq", 40, 10)
-        v11 = input_row("🥩", "Ət", 110, 11)
-        v12 = input_row("🛡️", "Zapas", 150, 12)
+    with c2:
+        st.markdown("<div class='finance-card'>", unsafe_allow_html=True)
+        st.subheader("🔄 Dəyişən və İstirahət")
+        v7 = st.slider("🎡 İstirahət (Rayon)", 0, 600, 300, step=50)
+        v8 = st.number_input("🍔 Restoran/Əyləncə", value=100, step=10, format="%d")
+        v9 = st.number_input("⛽ Benzin", value=50, step=10, format="%d")
+        v10 = st.number_input("📦 Temu/Online", value=50, step=10, format="%d")
+        v11 = st.number_input("🥩 Ət təminatı", value=110, step=10, format="%d")
+        
+        hekim_check = st.toggle("🏥 Tibbi Xərc (Aktiv/Deaktiv)", value=True)
+        v_hekim = st.number_input("Məbləğ", value=400, format="%d") if hekim_check else 0
         st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-    hekim_check = st.checkbox("🏥 Həkim xərci var?", value=True)
-    v_hekim = st.number_input("Həkim məbləği", value=400, step=1, format="%d") if hekim_check else 0
-    istirahet = st.select_slider("🎡 İstirahət", options=[0, 150, 300, 450], value=300)
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Hesablama Paneli
+    toplam_xerc = v1+v2+v3+v4+v5+v6+v7+v8+v9+v10+v11+v_hekim
+    qalan_mebleg = BUTUN_GELIR - toplam_xerc
 
-    # Hesablama
-    total_plan = v1+v2+v3+v4+v5+v6+v7+v8+v9+v10+v11+v12+v_hekim+istirahet
-    final_zapas = MAAS - total_plan + QAYNANA_KOMEY
-
-    st.markdown("<div class='main-card' style='background-color: #2c3e50; color: white;'>", unsafe_allow_html=True)
-    c1, c2 = st.columns(2)
-    c1.metric("Toplam Plan", f"{total_plan} AZN")
-    c2.metric("Qalan Zapas", f"{final_zapas} AZN")
-    st.markdown("</div>", unsafe_allow_html=True)
+    col_res1, col_res2, col_res3 = st.columns(3)
+    col_res1.metric("Ümumi Büdcə", f"{BUTUN_GELIR} AZN")
+    col_res2.metric("Planlanan Xərc", f"{toplam_xerc} AZN", delta=f"-{toplam_xerc}", delta_color="inverse")
+    col_res3.metric("Net Qalıq", f"{qalan_mebleg} AZN")
 
 with tab2:
-    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-    st.subheader("💸 Xərci Qeyd Et")
+    st.markdown("<div class='finance-card'>", unsafe_allow_html=True)
+    st.subheader("📝 Yeni Xərc Qeydi")
     
-    cats = ["💳 Kredit", "🔌 Komunal", "👩‍💼 Şaxnuz", "🤝 Borc", "🛒 Böyük Baz.", "👶 Arslan", "🍔 Restoran", "🎡 İstirahət", "🏥 Həkim", "⛽ Benzin", "📦 Temu", "🐥 Toyuq", "🥩 Ət", "❓ Digər"]
+    cats = ["Kredit", "Komunal", "Şaxnuz", "Borc", "Bazarlıq", "Arslan", "Restoran", "İstirahət", "Həkim", "Benzin", "Temu", "Ət", "Digər"]
     
-    sel_cat = st.selectbox("Kateqoriya", cats)
-    sel_val = st.number_input("Məbləğ (AZN)", value=0, step=1, format="%d")
-    add_btn = st.button("➕ ƏLAVƏ ET")
-
-    if add_btn and sel_val > 0:
-        st.session_state.real_xercler.append({"Kat": sel_cat, "Məbləğ": int(sel_val)})
-        st.rerun()
+    x_col1, x_col2, x_col3 = st.columns([2, 1, 1])
+    secilen_cat = x_col1.selectbox("Kateqoriya", cats, label_visibility="collapsed")
+    secilen_mebleg = x_col2.number_input("Məbləğ", value=0, step=1, format="%d", label_visibility="collapsed")
+    if x_col3.button("➕ SİYAHIYA ƏLAVƏ ET"):
+        if secilen_mebleg > 0:
+            st.session_state.real_xercler.append({"Kateqoriya": secilen_cat, "Məbləğ": int(secilen_mebleg)})
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.real_xercler:
         df = pd.DataFrame(st.session_state.real_xercler)
-        total_spent = df["Məbləğ"].sum()
+        real_toplam = df["Məbləğ"].sum()
         
-        st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-        st.metric("Cəmi Xərclənib", f"{total_spent} AZN")
-        st.metric("Maaşdan Qalan", f"{MAAS - total_spent} AZN")
-        st.write("---")
+        st.write("### ⏱️ Canlı Balans")
+        proqress = min(real_toplam / BUTUN_GELIR, 1.0)
+        st.progress(proqress)
+        
+        m_col1, m_col2 = st.columns(2)
+        m_col1.metric("İstifadə Edilib", f"{real_toplam} AZN")
+        m_col2.metric("Cibdə Qalan", f"{BUTUN_GELIR - real_toplam} AZN")
+        
         st.dataframe(df, use_container_width=True)
-        if st.button("🗑️ Sıfırla"):
+        if st.button("🗑️ AYI SIFIRLA"):
             st.session_state.real_xercler = []
             st.rerun()
+
+with tab3:
+    if st.session_state.real_xercler:
+        st.markdown("<div class='finance-card'>", unsafe_allow_html=True)
+        st.subheader("📊 Xərc Strukturu")
+        fig = px.pie(df, values='Məbləğ', names='Kateqoriya', hole=.4, 
+                     color_discrete_sequence=px.colors.sequential.RdBu)
+        st.plotly_chart(fig, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Gündəlik Limit Hesablayıcı
+        st.markdown("<div class='finance-card'>", unsafe_allow_html=True)
+        st.subheader("📅 Gündəlik Limit Analizi")
+        gun = st.slider("Ayın bitməsinə neçə gün qalıb?", 1, 31, 15)
+        limit = (BUTUN_GELIR - real_toplam) / gun
+        st.info(f"Növbəti maaşa qədər günlük limitiniz: **{limit:.2f} AZN**")
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.warning("Analiz üçün hələ ki məlumat yoxdur. Xərcləri qeyd etdikdən sonra bura baxın.")
