@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v6</title>
+  <title>Maaş Hesabatı v7</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +50,6 @@
         color: var(--accent);
         user-select: none;
     }
-    .brand:active { opacity: 0.7; }
 
     .select-wrapper { position: relative; width: fit-content; }
     .select-wrapper::after {
@@ -91,13 +90,25 @@
     }
     .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
+    /* Mesaj Panelləri */
     .alert { 
-        padding: 15px; border-radius: 12px; margin-bottom: 20px; 
+        padding: 15px; border-radius: 12px; margin-bottom: 10px; 
         font-size: 14px; font-weight: 700; border: 1px solid transparent; text-align: center;
     }
     .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
     .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
+
+    .detail-msg {
+        font-size: 12px;
+        padding: 10px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 10px;
+        margin-bottom: 20px;
+        color: var(--text-dim);
+        line-height: 1.5;
+        border-left: 3px solid var(--accent);
+    }
 
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     
@@ -120,7 +131,6 @@
     .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
 
-    /* Backup düymələri üçün stil */
     .backup-section {
         display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px;
         background: rgba(255,255,255,0.01); border-top: 1px solid var(--border);
@@ -148,7 +158,9 @@
     </div>
   </header>
 
+  <!-- Dinamik Mesajlar -->
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
+  <div id="detailAlert" class="detail-msg">Xərclərinizi daxil etdikcə analiz bura gələcək.</div>
 
   <div class="top-stats">
     <div class="stat-box">
@@ -166,11 +178,10 @@
   </div>
 
   <div class="nav-tabs">
-    <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Planlama</button>
-    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Analitika</button>
+    <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Xərclər</button>
+    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Planlama Analizi</button>
   </div>
 
-  <!-- PLANLAMA BÖLMƏSİ -->
   <div id="sectionPlan" class="card">
     <div class="input-group">
       <div class="select-wrapper" style="width:100%">
@@ -192,11 +203,8 @@
     </table>
   </div>
 
-  <!-- ANALİTİKA BÖLMƏSİ -->
   <div id="sectionAna" class="card hidden">
     <div id="analyticsTable"></div>
-    
-    <!-- Yedəkləmə Düymələri -->
     <div class="backup-section">
         <button class="btn-backup" onclick="exportJSON()">📥 Yedəklə (JSON)</button>
         <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 Məlumatı Yüklə</button>
@@ -277,12 +285,22 @@
 
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
+    let issues = [];
+    let goodNews = [];
+
     anaTable.innerHTML = categoryList.map(cat => {
       const target = db[currentMonth].targets[cat] || 0;
       const spent = db[currentMonth].expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
+      
+      if (diff < 0) {
+          issues.push(`⚠️ <b>${cat}</b> bölməsində hədəfi <b>${Math.abs(diff.toFixed(0))}₼</b> aşmısınız.`);
+      } else if (spent > 0 && diff > 0) {
+          goodNews.push(`${cat} üçün hələ <b>${diff.toFixed(0)}₼</b> limitiniz var.`);
+      }
+
       return `
         <div class="ana-row">
           <div><b>${cat}</b></div>
@@ -302,28 +320,38 @@
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
+    // Status Mesajları
     const statusMsg = document.getElementById('statusMsg');
+    const detailAlert = document.getElementById('detailAlert');
     const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
 
     if (salary === 0) {
         statusMsg.innerText = "Lütfən, maaş daxil edin.";
         statusMsg.className = "alert alert-neutral";
     } else if (balance < 0) {
-        statusMsg.innerText = "Büdcəni " + Math.abs(balance.toFixed(0)) + " ₼ aşmısınız!";
-        statusMsg.className = "alert alert-warn";
-    } else if (spentPerc > 85) {
-        statusMsg.innerText = "Diqqət: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
+        statusMsg.innerText = "Kritik Vəziyyət!";
         statusMsg.className = "alert alert-warn";
     } else {
-        statusMsg.innerText = "Hər şey qaydasındadır. Qalıq: " + balance.toFixed(0) + " ₼";
+        statusMsg.innerText = "Ümumi Vəziyyət Yaxşıdır";
         statusMsg.className = "alert alert-info";
+    }
+
+    // Detallı Analiz Mətnini Formallaşdır
+    if (issues.length > 0) {
+        detailAlert.innerHTML = issues.join("<br>");
+        detailAlert.style.borderLeftColor = "var(--red)";
+    } else if (goodNews.length > 0) {
+        detailAlert.innerHTML = "Hələlik hədəf daxilindəsiniz. " + goodNews[0];
+        detailAlert.style.borderLeftColor = "var(--green)";
+    } else {
+        detailAlert.innerHTML = "Xərclərinizi daxil etdikcə analiz bura gələcək.";
+        detailAlert.style.borderLeftColor = "var(--accent)";
     }
   }
 
-  // Backup Funksiyaları
   function exportJSON() {
     const dataStr = localStorage.getItem('maliyya_v5_db');
-    if(!dataStr) return alert("Yadda saxlanılacaq məlumat yoxdur!");
+    if(!dataStr) return alert("Məlumat yoxdur!");
     const blob = new Blob([dataStr], {type: "application/json"});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -341,9 +369,9 @@
         const importedData = JSON.parse(e.target.result);
         localStorage.setItem('maliyya_v5_db', JSON.stringify(importedData));
         db = importedData;
-        alert("Məlumatlar uğurla yükləndi!");
+        alert("Məlumatlar yükləndi!");
         init();
-      } catch (err) { alert("Fayl oxunmadı!"); }
+      } catch (err) { alert("Xəta baş verdi!"); }
     };
     reader.readAsText(file);
   }
