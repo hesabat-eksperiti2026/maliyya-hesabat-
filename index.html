@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v9</title>
+  <title>Maaş Hesabatı v10</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,22 +23,14 @@
 
     * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     
-    body { 
-      margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 15px;
-    }
-
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 15px; }
     .container { max-width: 1100px; margin: 0 auto; }
 
-    header { 
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);
-    }
-    
-    .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); user-select: none; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+    .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; user-select: none; }
 
     .select-wrapper { position: relative; width: fit-content; }
-    .select-wrapper::after {
-        content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none;
-    }
+    .select-wrapper::after { content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
 
     select { appearance: none; padding-right: 30px !important; }
 
@@ -63,7 +55,6 @@
     @media (min-width: 600px) { .input-group { flex-direction: row; } }
 
     input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; }
-
     .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
     .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
@@ -76,6 +67,9 @@
     .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
 
+    .backup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: rgba(255,255,255,0.01); border-top: 1px solid var(--border); }
+    .btn-backup { background: #21262d; color: white; border: 1px solid var(--border); padding: 12px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
+
     .hidden { display: none; }
   </style>
 </head>
@@ -83,14 +77,14 @@
 
 <div class="container">
   <header>
-    <div class="brand">Maaş Hesabatı</div>
+    <div class="brand" onclick="window.location.reload()">Maaş Hesabatı</div>
     <div class="select-wrapper">
       <select id="monthSelector" onchange="init()"></select>
     </div>
   </header>
 
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
-  <div id="detailAlert" class="detail-msg">Analiz hazırlanır...</div>
+  <div id="detailAlert" class="detail-msg">Xərclərinizi daxil etdikcə analiz bura gələcək.</div>
 
   <div class="top-stats">
     <div class="stat-box">
@@ -121,30 +115,27 @@
       <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
-
     <table>
-      <thead>
-        <tr><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th style="text-align:right">SİL</th></tr>
-      </thead>
+      <thead><tr><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th style="text-align:right">SİL</th></tr></thead>
       <tbody id="expenseTable"></tbody>
     </table>
   </div>
 
   <div id="sectionAna" class="card hidden">
     <div id="analyticsTable"></div>
+    <div class="backup-section">
+        <button class="btn-backup" onclick="exportJSON()">📥 Yedəklə (JSON)</button>
+        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 Məlumatı Yüklə</button>
+        <input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
+    </div>
   </div>
 </div>
 
 <script>
-  const baseCategories = [
-    "Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", 
-    "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", 
-    "Baxım", "Həkim", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"
-  ];
-
+  const baseCategories = ["Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", "Baxım", "Həkim", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"];
   const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
   
-  let db = JSON.parse(localStorage.getItem('maliyya_v9_db')) || {};
+  let db = JSON.parse(localStorage.getItem('maliyya_v10_db')) || {};
   let currentMonth = "";
 
   function setupMonthSelector() {
@@ -156,23 +147,17 @@
         opt.innerText = `${m} 2026`;
         selector.appendChild(opt);
     });
-    // Cari ayı avtomatik seç (indiki ay May-dırsa)
-    selector.value = "May_2026";
+    selector.value = months[new Date().getMonth()] + "_2026";
   }
 
   function init() {
     setupMonthSelector();
     currentMonth = document.getElementById('monthSelector').value;
-    
     const expCat = document.getElementById('expCat');
     expCat.innerHTML = baseCategories.map(c => `<option value="${c}">${c}</option>`).join('');
 
     if (!db[currentMonth]) {
-      db[currentMonth] = {
-        salary: 0, expenses: [],
-        targets: { "Kredit": 650, "Şaxnuz maaş": 500, "Komunal": 100, "Bazarlıq": 400 },
-        customCats: [] // "Digər" vasitəsilə əlavə olunan dinamik adlar
-      };
+      db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
     }
     document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
     render();
@@ -192,17 +177,12 @@
     let cat = document.getElementById('expCat').value;
     const otherVal = document.getElementById('otherCatInput').value.trim();
     const amt = parseFloat(document.getElementById('expAmt').value);
-
     if (cat === "Digər") {
         if (!otherVal) return alert("Xərcin adını yazın!");
         cat = otherVal;
-        if (!db[currentMonth].customCats.includes(cat)) {
-            db[currentMonth].customCats.push(cat);
-        }
+        if (!db[currentMonth].customCats.includes(cat)) db[currentMonth].customCats.push(cat);
     }
-
     if (!amt) return;
-    
     db[currentMonth].expenses.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
     document.getElementById('expAmt').value = "";
     document.getElementById('otherCatInput').value = "";
@@ -211,17 +191,9 @@
     save(); render();
   }
 
-  function deleteExp(idx) {
-    db[currentMonth].expenses.splice(idx, 1);
-    save(); render();
-  }
-
-  function updateTarget(cat, val) {
-    db[currentMonth].targets[cat] = parseFloat(val) || 0;
-    save(); render();
-  }
-
-  function save() { localStorage.setItem('maliyya_v9_db', JSON.stringify(db)); }
+  function deleteExp(idx) { db[currentMonth].expenses.splice(idx, 1); save(); render(); }
+  function updateTarget(cat, val) { db[currentMonth].targets[cat] = parseFloat(val) || 0; save(); render(); }
+  function save() { localStorage.setItem('maliyya_v10_db', JSON.stringify(db)); }
 
   function switchTab(t) {
     document.getElementById('sectionPlan').classList.toggle('hidden', t !== 'plan');
@@ -236,15 +208,13 @@
       <tr>
         <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
         <td style="font-weight:700">${item.amt} ₼</td>
-        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px;">&times;</button></td>
+        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px; cursor:pointer;">&times;</button></td>
       </tr>
     `).join('');
 
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
     let issues = [];
-
-    // Bütün aktiv kateqoriyalar (baza + bu ay əlavə edilən digərlər)
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...db[currentMonth].customCats])];
 
     anaTable.innerHTML = activeCats.map(cat => {
@@ -253,18 +223,14 @@
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
-      
-      if (diff < 0) issues.push(`⚠️ <b>${cat}</b>: <b>${Math.abs(diff.toFixed(0))}₼</b> artıq xərcləndi.`);
-
-      return `
-        <div class="ana-row">
+      if (diff < 0) issues.push(`⚠️ <b>${cat}</b>: <b>${Math.abs(diff.toFixed(0))}₼</b> hədəfdən çox xərclədiniz.`);
+      return `<div class="ana-row">
           <div><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
           <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
-        </div>
-      `;
+        </div>`;
     }).join('');
 
     const salary = db[currentMonth].salary || 0;
@@ -277,15 +243,47 @@
     
     const statusMsg = document.getElementById('statusMsg');
     if (salary === 0) {
-        statusMsg.innerText = "Lütfən, maaş daxil edin.";
-        statusMsg.className = "alert alert-neutral";
+        statusMsg.innerText = "Lütfən, maaş daxil edin."; statusMsg.className = "alert alert-neutral";
+    } else if (balance < 0) {
+        statusMsg.innerText = "Büdcə Aşıldı! (" + spentPerc.toFixed(0) + "%)"; statusMsg.className = "alert alert-warn";
+    } else if (spentPerc > 85) {
+        statusMsg.innerText = "Kritik Hədd: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
+    } else if (spentPerc > 50) {
+        statusMsg.innerText = "Vəziyyət Orta: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = balance < 0 ? "Büdcə Aşıldı! ("+spentPerc.toFixed(0)+"%)" : "Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
-        statusMsg.className = balance < 0 || spentPerc > 90 ? "alert alert-warn" : "alert alert-info";
+        statusMsg.innerText = "Vəziyyət Yaxşı: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     }
 
     const detailAlert = document.getElementById('detailAlert');
-    detailAlert.innerHTML = issues.length > 0 ? issues.join("<br>") : (totalSpent > 0 ? "Hədəflər daxilindəsiniz. ✅" : "Xərcləri daxil edin.");
+    if (issues.length > 0) {
+        detailAlert.innerHTML = issues.join("<br>"); detailAlert.style.borderLeftColor = "var(--red)";
+    } else if (totalSpent > 0) {
+        detailAlert.innerHTML = "Hələlik bütün kateqoriyalar hədəf daxilindədir. ✅"; detailAlert.style.borderLeftColor = "var(--green)";
+    } else {
+        detailAlert.innerHTML = "Xərclərinizi daxil etdikcə analiz bura gələcək."; detailAlert.style.borderLeftColor = "var(--accent)";
+    }
+  }
+
+  function exportJSON() {
+    const dataStr = localStorage.getItem('maliyya_v10_db');
+    if(!dataStr) return alert("Məlumat yoxdur!");
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = `maliyya_yedek_2026.json`; link.click();
+  }
+
+  function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        db = JSON.parse(e.target.result);
+        save(); alert("Məlumatlar yükləndi!"); init();
+      } catch (err) { alert("Xətalı fayl!"); }
+    };
+    reader.readAsText(file);
   }
 
   init();
