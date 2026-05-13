@@ -2,8 +2,8 @@
 <html lang="az">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Maliyyə Pro - Şəxsi İdarəetmə</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+  <title>Maliyyə Pro - Mobil Uyğun</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,96 +29,107 @@
       font-family: 'Inter', sans-serif; 
       background: var(--bg); 
       color: var(--text-main); 
-      line-height: 1.6;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container { max-width: 1100px; margin: 0 auto; }
 
-    /* Header & Branding */
     header { 
       display: flex; 
       justify-content: space-between; 
-      align-items: flex-end; 
-      margin-bottom: 40px; 
-      padding-bottom: 20px;
+      align-items: center; 
+      margin-bottom: 25px; 
+      padding-bottom: 15px;
       border-bottom: 1px solid var(--border);
     }
     
-    h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-    .month-picker label { font-size: 12px; text-transform: uppercase; color: var(--text-dim); display: block; margin-bottom: 5px; font-weight: 600; }
+    h1 { margin: 0; font-size: 20px; font-weight: 800; }
+    .month-picker select { padding: 8px; font-size: 13px; }
 
-    /* Top Stats Bar */
+    /* Top Stats */
     .top-stats { 
       display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-      gap: 20px; 
-      margin-bottom: 30px; 
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+      gap: 12px; 
+      margin-bottom: 20px; 
     }
     
     .stat-box { 
       background: var(--card); 
-      padding: 20px; 
-      border-radius: 16px; 
+      padding: 15px; 
+      border-radius: 12px; 
       border: 1px solid var(--border);
-      position: relative;
     }
     
-    .stat-box label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
-    .stat-box .val { font-size: 24px; font-weight: 800; margin-top: 5px; display: block; }
+    .stat-box label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; display: block; }
+    .stat-box .val { font-size: 18px; font-weight: 800; margin-top: 5px; display: block; }
     .stat-box input { 
-      background: rgba(255,159,26,0.1); 
-      border: 1px dashed var(--accent); 
+      background: rgba(255,159,26,0.05); 
+      border: 1px solid var(--accent); 
       color: var(--accent); 
-      font-size: 22px; 
+      font-size: 18px; 
       font-weight: 800; 
       width: 100%; 
       padding: 5px; 
-      border-radius: 8px;
+      border-radius: 6px;
+      outline: none;
     }
 
     /* Tabs */
-    .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
     .tab-link { 
+      flex: 1;
       background: none; border: 1px solid var(--border); color: var(--text-dim); 
-      padding: 10px 25px; border-radius: 12px; cursor: pointer; font-weight: 600; 
-      transition: 0.2s;
+      padding: 10px 5px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 12px;
     }
     .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
     /* Smart Alert */
-    .alert { 
-      padding: 18px; border-radius: 16px; margin-bottom: 30px; 
-      font-weight: 600; display: flex; align-items: center; gap: 12px; 
+    .alert { padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); }
+    .alert-info { background: rgba(46,229,157,0.1); color: var(--green); }
+    .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); }
+
+    /* Form Design - MOBİL ÜÇÜN DÜZƏLİŞ */
+    .input-group { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+      padding: 15px; 
+      background: rgba(255,255,255,0.02); 
     }
-    .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border: 1px solid rgba(46,229,157,0.2); }
-    .alert-warn { background: rgba(255,159,26,0.1); color: var(--accent); border: 1px solid rgba(255,159,26,0.2); }
-
-    /* Main Table & List */
-    .card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
-    .card-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     
-    table { width: 100%; border-collapse: collapse; }
-    th { background: rgba(255,255,255,0.02); padding: 15px; text-align: left; font-size: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border); }
-    td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 14px; }
+    @media (min-width: 600px) {
+      .input-group { flex-direction: row; }
+      .input-group select { flex: 2; }
+      .input-group input { flex: 1; }
+      .input-group button { flex: 1; }
+      h1 { font-size: 28px; }
+    }
 
-    /* Forms */
-    .input-group { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; padding: 20px; background: rgba(255,255,255,0.01); }
     input, select { 
       background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; 
-      border-radius: 10px; font-family: inherit; font-size: 14px;
+      border-radius: 10px; font-size: 14px; width: 100%;
     }
-    .btn-primary { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; }
 
-    /* Analytics Rows */
-    .ana-row { 
-      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 10px; 
-      padding: 15px 20px; align-items: center; border-bottom: 1px solid var(--border); 
+    .btn-primary { 
+      background: var(--accent); color: #000; border: none; padding: 14px; 
+      border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px;
     }
-    .target-input { width: 80px !important; padding: 4px 8px !important; font-size: 13px !important; border-style: dashed !important; }
-    
-    .prog-bar-bg { grid-column: span 4; height: 6px; background: #30363d; border-radius: 10px; margin-top: 5px; overflow: hidden; }
-    .prog-bar-fill { height: 100%; transition: 0.5s ease; }
+
+    /* Table */
+    .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 11px; color: var(--text-dim); }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
+
+    /* Analytics */
+    .ana-row { 
+      display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; 
+      padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px;
+    }
+    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; }
+    .prog-bar-bg { grid-column: span 4; height: 5px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 4px; }
+    .prog-bar-fill { height: 100%; transition: 0.4s; }
 
     .hidden { display: none; }
   </style>
@@ -127,52 +138,42 @@
 
 <div class="container">
   <header>
-    <div>
-      <h1>Maliyyə İdarəetmə</h1>
-    </div>
+    <h1>Maliyyə Pro</h1>
     <div class="month-picker">
-      <label>İdarəetmə Ayı</label>
       <select id="monthSelector" onchange="changeMonth()">
         <option value="May_2026">May 2026</option>
         <option value="Iyun_2026">İyun 2026</option>
         <option value="Iyul_2026">İyul 2026</option>
-        <option value="Avqust_2026">Avqust 2026</option>
       </select>
     </div>
   </header>
 
-  <div id="statusMsg" class="alert alert-info">Sistem aktivdir. Xərcləri daxil etməyə başlaya bilərsiniz.</div>
+  <div id="statusMsg" class="alert alert-info">Sistem aktivdir.</div>
 
   <div class="top-stats">
     <div class="stat-box">
-      <label>Aylıq Maaş (Gəlir)</label>
-      <input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="Maaş yaz...">
+      <label>Maaş</label>
+      <input type="number" id="monthlySalary" onchange="updateSalary()">
     </div>
     <div class="stat-box">
-      <label>Ümumi Xərc</label>
+      <label>Xərc</label>
       <span class="val" id="totalSpent">0 ₼</span>
     </div>
     <div class="stat-box">
-      <label>Qalıq Balans</label>
-      <span class="val" id="totalBalance" style="color:var(--green)">0 ₼</span>
+      <label>Qalıq</label>
+      <span class="val" id="totalBalance">0 ₼</span>
     </div>
   </div>
 
   <div class="nav-tabs">
-    <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Planlama & Xərclər</button>
-    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Analitika & Hədəflər</button>
+    <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Xərclər</button>
+    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Analitika</button>
   </div>
 
-  <!-- SECTION: PLANLAMA -->
   <div id="sectionPlan" class="card">
-    <div class="card-header">
-      <h3 style="margin:0; font-size:16px;">Yeni Xərc Əlavə Et</h3>
-      <button onclick="exportToExcel()" style="background:none; border:1px solid var(--border); color:var(--text-dim); padding:5px 12px; border-radius:8px; cursor:pointer; font-size:12px;">Excel Yüklə</button>
-    </div>
-    
     <div class="input-group">
       <select id="expCat"></select>
-      <input type="number" id="expAmt" placeholder="Məbləğ">
+      <input type="number" id="expAmt" placeholder="Məbləğ" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
 
@@ -181,50 +182,33 @@
         <tr>
           <th>KATEQORİYA</th>
           <th>MƏBLƏĞ</th>
-          <th>TARİX</th>
-          <th style="text-align:right">AKSİYA</th>
+          <th style="text-align:right">SİL</th>
         </tr>
       </thead>
       <tbody id="expenseTable"></tbody>
     </table>
   </div>
 
-  <!-- SECTION: ANALİTİKA -->
   <div id="sectionAna" class="card hidden">
-    <div class="card-header">
-      <h3 style="margin:0; font-size:16px;">Hədəf və Limitlərin Tənzimlənməsi</h3>
-      <span style="font-size:12px; color:var(--text-dim)">* Hədəfləri burada hər ay üçün dəyişə bilərsiniz</span>
-    </div>
-    <div class="ana-row" style="color:var(--text-dim); font-weight:700; font-size:11px; text-transform:uppercase;">
-      <div>Kateqoriya</div>
-      <div>Hədəf (Limit)</div>
-      <div>Real Xərc</div>
-      <div>Vəziyyət</div>
-    </div>
     <div id="analyticsTable"></div>
   </div>
 </div>
 
 <script>
-  // Sabit kateqoriya siyahısı
   const categoryList = [
     "Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", 
     "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", 
     "Baxım", "Həkim", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran"
   ];
 
-  // Global Data
   let db = JSON.parse(localStorage.getItem('maliyya_v5_db')) || {};
-  let currentMonth = "May_2026";
+  let currentMonth = "";
 
   function init() {
     currentMonth = document.getElementById('monthSelector').value;
-    
-    // Select-i doldur
     const expCat = document.getElementById('expCat');
     expCat.innerHTML = categoryList.map(c => `<option value="${c}">${c}</option>`).join('');
 
-    // Ayın məlumatları yoxdursa yarat
     if (!db[currentMonth]) {
       db[currentMonth] = {
         salary: 0,
@@ -237,50 +221,37 @@
         }
       };
     }
-    
     document.getElementById('monthlySalary').value = db[currentMonth].salary;
     render();
   }
 
-  function changeMonth() {
-    init();
-  }
+  function changeMonth() { init(); }
 
   function updateSalary() {
     db[currentMonth].salary = parseFloat(document.getElementById('monthlySalary').value) || 0;
-    save();
-    render();
+    save(); render();
   }
 
   function addExpense() {
     const cat = document.getElementById('expCat').value;
     const amt = parseFloat(document.getElementById('expAmt').value);
     if (!amt) return;
-
-    db[currentMonth].expenses.unshift({
-      cat, amt, date: new Date().toLocaleDateString('az-AZ', {day:'2-digit', month:'short'})
-    });
-    
+    db[currentMonth].expenses.unshift({ cat, amt, date: new Date().toLocaleDateString() });
     document.getElementById('expAmt').value = "";
-    save();
-    render();
+    save(); render();
   }
 
   function deleteExp(idx) {
     db[currentMonth].expenses.splice(idx, 1);
-    save();
-    render();
+    save(); render();
   }
 
   function updateTarget(cat, val) {
     db[currentMonth].targets[cat] = parseFloat(val) || 0;
-    save();
-    render();
+    save(); render();
   }
 
-  function save() {
-    localStorage.setItem('maliyya_v5_db', JSON.stringify(db));
-  }
+  function save() { localStorage.setItem('maliyya_v5_db', JSON.stringify(db)); }
 
   function switchTab(t) {
     document.getElementById('sectionPlan').classList.toggle('hidden', t !== 'plan');
@@ -290,35 +261,29 @@
   }
 
   function render() {
-    // 1. Table Render
     const table = document.getElementById('expenseTable');
     table.innerHTML = db[currentMonth].expenses.map((item, i) => `
       <tr>
-        <td style="font-weight:600">${item.cat}</td>
+        <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
         <td style="font-weight:700">${item.amt} ₼</td>
-        <td style="color:var(--text-dim)">${item.date}</td>
-        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:18px;">&times;</button></td>
+        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px;">&times;</button></td>
       </tr>
     `).join('');
 
-    // 2. Analytics Render
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
-
     anaTable.innerHTML = categoryList.map(cat => {
       const target = db[currentMonth].targets[cat] || 0;
       const spent = db[currentMonth].expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
-      const color = diff < 0 ? 'var(--red)' : 'var(--green)';
-
       return `
         <div class="ana-row">
-          <div style="font-weight:600">${cat}</div>
-          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"> ₼</div>
-          <div style="font-weight:700">${spent} ₼</div>
-          <div style="color:${color}; font-weight:800">${diff > 0 ? '+'+diff : diff} ₼</div>
+          <div><b>${cat}</b></div>
+          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
+          <div style="font-weight:700">${spent}₼</div>
+          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff}₼</div>
           <div class="prog-bar-bg">
             <div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div>
           </div>
@@ -326,31 +291,15 @@
       `;
     }).join('');
 
-    // 3. Stats Update
     const salary = db[currentMonth].salary;
     const balance = salary - totalSpent;
-    
-    document.getElementById('totalSpent').innerText = totalSpent.toFixed(2) + " ₼";
-    document.getElementById('totalBalance').innerText = balance.toFixed(2) + " ₼";
+    document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
+    document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
-
-    // 4. Alert Update
+    
     const statusMsg = document.getElementById('statusMsg');
-    if (balance < 0) {
-      statusMsg.className = "alert alert-warn";
-      statusMsg.innerText = "DİQQƏT: Hazırda maaşınızdan çox xərcləmisiniz! Balans mənfidir.";
-    } else {
-      statusMsg.className = "alert alert-info";
-      statusMsg.innerText = "Büdcəniz stabil qalır. Qalıq gəliriniz: " + balance.toFixed(2) + " ₼";
-    }
-  }
-
-  function exportToExcel() {
-    const data = db[currentMonth].expenses.map(e => ({ "Kateqoriya": e.cat, "Məbləğ": e.amt, "Tarix": e.date }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Xərclər");
-    XLSX.writeFile(wb, `Hesabat_${currentMonth}.xlsx`);
+    statusMsg.innerText = balance < 0 ? "Büdcə aşıldı!" : "Vəziyyət yaxşıdır.";
+    statusMsg.className = balance < 0 ? "alert alert-warn" : "alert alert-info";
   }
 
   init();
