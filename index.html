@@ -32,10 +32,6 @@
     .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
     .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; }
-    
-    /* Göz düyməsi üçün əlavə stil */
-    .eye-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-right: 10px; }
-
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
     .tab-link.active { background: var(--accent); color: #000; }
@@ -61,11 +57,7 @@
 <div class="container">
   <header>
     <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
-    <div style="display: flex; align-items: center;">
-      <!-- GÖZ DÜYMƏSİ -->
-      <button class="eye-btn" onclick="togglePrivacy()" id="eyeIcon">👁️</button>
-      <div class="select-wrapper"><select id="monthSelector" onchange="init()"></select></div>
-    </div>
+    <div class="select-wrapper"><select id="monthSelector" onchange="init()"></select></div>
   </header>
 
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
@@ -123,15 +115,8 @@
   
   let db = {};
   let currentMonth = "";
-  let isPrivate = false; // Gizlilik vəziyyəti
 
-  // Göz funksiyası
-  function togglePrivacy() {
-    isPrivate = !isPrivate;
-    document.getElementById('eyeIcon').innerText = isPrivate ? "🙈" : "👁️";
-    render();
-  }
-
+  // Firebase üçün təhlükəsiz key yaratmaq (Nöqtəni silir)
   function safeKey(str) {
     return str.replace(/\./g, '').trim();
   }
@@ -155,6 +140,7 @@
     db_fb.ref('maliyya_v12').on('value', (snapshot) => {
       db = snapshot.val() || {};
       if (!db[currentMonth]) db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
+      document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
       render();
     });
   }
@@ -208,6 +194,7 @@
 
   function updateTarget(cat, val) {
     const amount = parseFloat(val) || 0;
+    // Firebase-də nöqtə problem yaratdığı üçün safeKey istifadə edirik
     db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(amount);
   }
 
@@ -222,21 +209,11 @@
     const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
     const expenses = data.expenses || [];
     const targets = data.targets || {};
-
-    // Maaşın gizlədilməsi
-    const salInput = document.getElementById('monthlySalary');
-    if (isPrivate) {
-      salInput.type = "password";
-      salInput.value = data.salary || 0;
-    } else {
-      salInput.type = "number";
-      salInput.value = data.salary || 0;
-    }
     
     document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
       <tr>
         <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
-        <td style="font-weight:700">${isPrivate ? '****' : item.amt + ' ₼'}</td>
+        <td style="font-weight:700">${item.amt} ₼</td>
         <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px; cursor:pointer;">&times;</button></td>
       </tr>
     `).join('');
@@ -248,19 +225,26 @@
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
 
     anaTable.innerHTML = activeCats.map(cat => {
+      // Nöqtəsiz key ilə datanı oxuyuruq
       const target = targets[safeKey(cat)] || 0;
       totalTargetSum += target;
+
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
       const isCustom = !baseCategories.includes(cat);
       
+      if (target > 0) {
+          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq!</span>`);
+          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət.</span>`);
+      }
+
       return `<div class="ana-row">
           <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
-          <div style="font-weight:700">${isPrivate ? '***' : spent + '₼'}</div>
-          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${isPrivate ? '***' : diff.toFixed(0) + '₼'}</div>
+          <div style="font-weight:700">${spent}₼</div>
+          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
           <div style="text-align:right">
             ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
           </div>
@@ -272,18 +256,22 @@
     const balance = salary - totalSpent;
     const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
     
-    document.getElementById('totalPlanned').innerText = isPrivate ? "****" : totalTargetSum.toFixed(0) + " ₼";
-    document.getElementById('totalSpent').innerText = isPrivate ? "****" : totalSpent.toFixed(0) + " ₼";
-    document.getElementById('totalBalance').innerText = isPrivate ? "****" : balance.toFixed(0) + " ₼";
+    document.getElementById('totalPlanned').innerText = totalTargetSum.toFixed(0) + " ₼";
+    document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
+    document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
     const statusMsg = document.getElementById('statusMsg');
     if (salary === 0) { 
         statusMsg.innerText = "Maaş daxil edin."; statusMsg.className = "alert alert-neutral"; 
     } else if (balance < 0) { 
-        statusMsg.innerText = "BUDCƏ AŞILDI!"; statusMsg.className = "alert alert-warn"; 
+        statusMsg.innerText = "BUDCƏ AŞILDI! (" + spentPerc.toFixed(0) + "%)"; statusMsg.className = "alert alert-warn"; 
+    } else if (spentPerc > 85) {
+        statusMsg.innerText = "KRİTİK: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
+    } else if (spentPerc > 50) {
+        statusMsg.innerText = "ORTA: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "Vəziyyət yaxşı."; statusMsg.className = "alert alert-info";
+        statusMsg.innerText = "YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     }
 
     document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
