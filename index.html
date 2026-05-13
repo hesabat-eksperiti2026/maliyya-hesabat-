@@ -3,345 +3,245 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Maliyyə Hesabatı - Pro Dashboard</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>Maliyyə Paneli v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --bg: #0c0f14;
-      --stroke: rgba(255,255,255,.12);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.65);
+      --card-bg: rgba(255,255,255,0.04);
+      --stroke: rgba(255,255,255,0.1);
+      --text: #ffffff;
+      --muted: #8a8f98;
       --yellow: #ff9f1a;
-      --yellow2: #ff7a00;
       --good: #2ee59d;
       --bad: #ff6b6b;
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
-      --radius: 18px;
-      --pillRadius: 14px;
+      --shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
 
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      color: var(--text);
-      background: 
-        radial-gradient(900px 520px at 20% 10%, rgba(255,159,26,.16), transparent 60%),
-        radial-gradient(900px 520px at 82% 18%, rgba(46,229,157,.10), transparent 60%),
-        var(--bg);
-      min-height: 100vh;
-      padding: 20px;
+      margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px;
+      background-image: radial-gradient(circle at top right, rgba(255,159,26,0.08), transparent);
     }
 
-    .wrap { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: 1000px; margin: 0 auto; }
 
-    /* Top Panel */
-    .header-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
+    /* Header & Tabs */
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+    .tabs { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
+    .tab-btn { 
+      flex: 1; padding: 10px; border: none; background: none; color: var(--muted); cursor: pointer; 
+      border-radius: 8px; font-weight: 600; transition: 0.3s; 
     }
+    .tab-btn.active { background: var(--yellow); color: #000; }
 
-    .pill {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--stroke);
-      padding: 12px 20px;
-      border-radius: var(--pillRadius);
-      backdrop-filter: blur(10px);
-    }
+    /* Stats Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--stroke); padding: 20px; border-radius: 15px; text-align: center; }
+    .stat-card span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .stat-card b { font-size: 22px; font-weight: 900; }
 
-    .pill input {
-      background: transparent;
-      border: none;
-      color: var(--yellow);
-      font-weight: 900;
-      font-size: 18px;
-      width: 100px;
-      outline: none;
-      text-align: right;
-    }
+    /* Forms & Tables */
+    .card { background: var(--card-bg); border: 1px solid var(--stroke); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); }
+    .section { display: none; padding: 20px; }
+    .section.active { display: block; }
 
-    /* Grid Layout */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 850px) {
-      .main-grid { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .card-header {
-      padding: 15px 20px;
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid var(--stroke);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* Table Styles */
     table { width: 100%; border-collapse: collapse; }
-    th { 
-      background: var(--yellow); 
-      color: #000; 
-      font-size: 12px; 
-      text-transform: uppercase; 
-      padding: 12px;
-      text-align: left;
-    }
-    td { padding: 12px; border-bottom: 1px solid var(--stroke); }
+    th { text-align: left; padding: 12px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--stroke); }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-    input.table-input {
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--stroke);
-      color: #fff;
-      padding: 8px;
-      border-radius: 8px;
-      width: 100%;
-      outline: none;
+    input, select { 
+      background: rgba(0,0,0,0.3); border: 1px solid var(--stroke); color: #fff; padding: 8px; 
+      border-radius: 8px; width: 100%; outline: none; font-family: inherit;
     }
 
-    .heat-high { border-left: 4px solid var(--bad); }
-    .heat-low { border-left: 4px solid var(--good); }
+    button.add-btn { background: var(--yellow); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+    
+    /* Analytics UI */
+    .cat-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 10px; }
+    .cat-info { display: flex; align-items: center; gap: 12px; }
+    .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cat-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.05); margin: 0 15px; border-radius: 10px; position: relative; }
+    .cat-bar-fill { position: absolute; height: 100%; border-radius: 10px; transition: 0.5s; }
 
-    /* Buttons */
-    button {
-      padding: 8px 16px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
-    }
-    .btn-add { background: var(--yellow); color: #000; }
-    .btn-pay { background: rgba(255,255,255,0.1); color: #fff; }
-    .btn-pay.done { background: var(--good); color: #000; }
-    .btn-del { background: transparent; color: var(--bad); font-size: 18px; }
-
-    /* Footer Stats */
-    .card-footer { padding: 20px; background: rgba(0,0,0,0.2); }
-    .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .stat-val { font-weight: 900; font-size: 20px; }
-
-    .progress-bar {
-      height: 8px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill { height: 100%; background: var(--yellow); transition: 0.3s; }
-
+    .btn-pay { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--stroke); background: none; color: #fff; cursor: pointer; }
+    .btn-pay.paid { background: var(--good); color: #000; border: none; font-weight: bold; }
   </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="header-box">
+<div class="container">
+  <div class="header">
     <div>
-      <h1 style="margin:0; font-size:24px;">Maliyyə Paneli 2026</h1>
-      <p style="color:var(--muted); margin:5px 0 0;">Xərclərinizi izləyin və idarə edin</p>
+      <h1 style="margin:0">Maliyyə İdarəetmə</h1>
+      <p id="currentDate" style="color:var(--muted); margin:5px 0 0; font-size: 13px;"></p>
     </div>
-    
-    <div style="display:flex; gap:10px;">
-        <div class="pill">
-            <span style="font-size:12px; color:var(--muted)">AY:</span>
-            <select id="monthSelect" style="background:none; border:none; color:#fff; font-weight:700; outline:none; cursor:pointer;">
-                <option value="Yanvar_2026">Yanvar 2026</option>
-                <option value="Fevral_2026">Fevral 2026</option>
-                <option value="Mart_2026">Mart 2026</option>
-                <option value="Aprel_2026">Aprel 2026</option>
-                <option value="May_2026">May 2026</option>
-            </select>
-        </div>
-        <div class="pill">
-            <span style="font-size:12px; color:var(--muted)">BÜDCƏ:</span>
-            <input type="number" id="budgetInput" value="2000"> <span>₼</span>
-        </div>
+    <div style="text-align: right;">
+        <span style="font-size:11px; color:var(--muted)">AYLIQ BÜDCƏ</span><br>
+        <input type="number" id="mainBudget" value="2500" style="width:100px; font-weight:900; font-size:18px; color:var(--yellow); text-align:right; border:none; background:none;"> <b style="color:var(--yellow)">₼</b>
     </div>
   </div>
 
-  <div class="main-grid">
-    <div class="card">
-      <div class="card-header">
-        <strong>Xərclər Siyahısı</strong>
-        <button class="btn-add" onclick="addRow()">+ Yeni Sətir</button>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('planning')">Planlama (Cədvəl)</button>
+    <button class="tab-btn" onclick="showTab('analytics')">Analitika (Bölgü)</button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><span>Ümumi Xərc</span><b id="totalSpent">0 ₼</b></div>
+    <div class="stat-card"><span>Qalıq Balans</span><b id="balance" style="color:var(--good)">0 ₼</b></div>
+    <div class="stat-card"><span>İllik Yığım</span><b id="annualSavings" style="color:var(--yellow)">0 ₼</b></div>
+  </div>
+
+  <div class="card">
+    <!-- Planning Section -->
+    <div id="planning" class="section active">
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
+        <strong style="font-size:18px">Xərc Siyahısı</strong>
+        <button class="add-btn" onclick="addRow()">+ Yeni Xərc</button>
       </div>
-      
       <table>
         <thead>
           <tr>
-            <th style="width:50%">Mənbə / Kateqoriya</th>
-            <th style="width:25%">Məbləğ</th>
-            <th style="width:25%">Status</th>
+            <th style="width:40%">Mənbə</th>
+            <th style="width:25%">Kateqoriya</th>
+            <th style="width:20%">Məbləğ</th>
+            <th style="width:15%">Status</th>
           </tr>
         </thead>
-        <tbody id="expenseTable">
-          <!-- Sətirlər JS ilə bura gələcək -->
-        </tbody>
+        <tbody id="rows"></tbody>
       </table>
-
-      <div class="card-footer">
-        <div class="stat-row">
-          <span>Ümumi Xərc:</span>
-          <span class="stat-val" id="totalExp">0 ₼</span>
-        </div>
-        <div class="stat-row">
-          <span>Qalıq Balans:</span>
-          <span class="stat-val" id="balanceVal" style="color:var(--good)">0 ₼</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="bar"></div>
-        </div>
-      </div>
     </div>
 
-    <div class="card" style="padding:20px;">
-      <h3 style="margin-top:0">İllik Yığım Hesabatı</h3>
-      <div id="annualSummary">
-         <!-- Kateqoriya cəmləri -->
+    <!-- Analytics Section -->
+    <div id="analytics" class="section">
+      <strong style="font-size:18px; display:block; margin-bottom:20px;">Kateqoriya üzrə xərclər</strong>
+      <div id="categoryList">
+        <!-- JS ilə dolacaq -->
       </div>
-      <hr style="border:0; border-top:1px solid var(--stroke); margin:20px 0;">
-      <button onclick="exportData()" style="width:100%; margin-bottom:10px;">Ehtiyat Nüsxə Yüklə (JSON)</button>
-      <button onclick="clearAll()" style="width:100%; background:rgba(255,107,107,0.1); color:var(--bad)">Bütün Datanı Sil</button>
     </div>
   </div>
 </div>
 
 <script>
-  let db = JSON.parse(localStorage.getItem('my_finances_2026')) || {};
-  let currentMonth = "Yanvar_2026";
+  let db = JSON.parse(localStorage.getItem('fin_v3_data')) || [];
+  let budget = localStorage.getItem('fin_v3_budget') || 2500;
 
-  const monthSelect = document.getElementById('monthSelect');
-  const budgetInput = document.getElementById('budgetInput');
+  const categories = [
+    { name: "Market", color: "#3498db" },
+    { name: "Restoran/Kafe", color: "#e67e22" },
+    { name: "Nəqliyyat", color: "#9b59b6" },
+    { name: "Kommunal", color: "#f1c40f" },
+    { name: "İllik Yığım", color: "#2ecc71" },
+    { name: "Geyim/Şəxsi", color: "#e74c3c" },
+    { name: "Digər", color: "#95a5a6" }
+  ];
 
-  function init() {
-    currentMonth = monthSelect.value;
-    if(!db[currentMonth]) {
-      db[currentMonth] = { budget: 2000, items: [] };
-    }
-    budgetInput.value = db[currentMonth].budget;
-    render();
-  }
-
-  function render() {
-    const container = document.getElementById('expenseTable');
-    container.innerHTML = "";
-    let total = 0;
-
-    db[currentMonth].items.forEach((item, index) => {
-      const val = parseFloat(item.amount) || 0;
-      total += val;
-
-      const tr = document.createElement('tr');
-      if(val > 500) tr.className = "heat-high";
-      if(val > 0 && val < 50) tr.className = "heat-low";
-
-      tr.innerHTML = `
-        <td>
-          <input class="table-input" value="${item.name}" onchange="updateItem(${index}, 'name', this.value)" placeholder="Məs: Market">
-          <select onchange="updateItem(${index}, 'cat', this.value)" style="background:none; color:var(--muted); border:none; font-size:10px; outline:none;">
-            <option value="Digər" ${item.cat==='Digər'?'selected':''}>Digər</option>
-            <option value="Yığım" ${item.cat==='Yığım'?'selected':''}>İllik Yığım</option>
-            <option value="Kommunal" ${item.cat==='Kommunal'?'selected':''}>Kommunal</option>
-          </select>
-        </td>
-        <td>
-          <input type="number" class="table-input" value="${item.amount}" onchange="updateItem(${index}, 'amount', this.value)">
-        </td>
-        <td style="text-align:right">
-          <button class="btn-pay ${item.paid ? 'done' : ''}" onclick="togglePaid(${index})">${item.paid ? '✓' : 'Ödə'}</button>
-          <button class="btn-del" onclick="deleteItem(${index})">×</button>
-        </td>
-      `;
-      container.appendChild(tr);
-    });
-
-    // Update Stats
-    const budget = parseFloat(budgetInput.value) || 0;
-    const balance = budget - total;
-    document.getElementById('totalExp').innerText = total.toFixed(2) + " ₼";
-    document.getElementById('balanceVal').innerText = balance.toFixed(2) + " ₼";
-    document.getElementById('balanceVal').style.color = balance < 0 ? 'var(--bad)' : 'var(--good)';
-    
-    const perc = Math.min((total / budget) * 100, 100);
-    document.getElementById('bar').style.width = perc + "%";
-
-    updateAnnual();
-    localStorage.setItem('my_finances_2026', JSON.stringify(db));
+  function showTab(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if(id === 'analytics') renderAnalytics();
   }
 
   function addRow() {
-    db[currentMonth].items.push({ name: "", amount: 0, cat: "Digər", paid: false });
+    db.push({ name: "", cat: "Market", amt: 0, paid: false });
     render();
   }
 
-  function updateItem(index, key, val) {
-    db[currentMonth].items[index][key] = val;
+  function updateItem(idx, key, val) {
+    db[idx][key] = val;
+    save();
+    updateStats();
+  }
+
+  function deleteItem(idx) {
+    db.splice(idx, 1);
     render();
   }
 
-  function togglePaid(index) {
-    db[currentMonth].items[index].paid = !db[currentMonth].items[index].paid;
+  function togglePaid(idx) {
+    db[idx].paid = !db[idx].paid;
     render();
   }
 
-  function deleteItem(index) {
-    db[currentMonth].items.splice(index, 1);
-    render();
+  function save() {
+    localStorage.setItem('fin_v3_data', JSON.stringify(db));
+    localStorage.setItem('fin_v3_budget', budget);
   }
 
-  function updateAnnual() {
-    let savings = 0;
-    Object.keys(db).forEach(m => {
-        db[m].items.forEach(i => {
-            if(i.cat === "Yığım") savings += (parseFloat(i.amount) || 0);
-        });
+  function updateStats() {
+    let total = db.reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+    let savings = db.filter(i => i.cat === "İllik Yığım").reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+    
+    document.getElementById('totalSpent').innerText = total.toFixed(2) + " ₼";
+    document.getElementById('balance').innerText = (budget - total).toFixed(2) + " ₼";
+    document.getElementById('annualSavings').innerText = savings.toFixed(2) + " ₼";
+    
+    document.getElementById('balance').style.color = (budget - total) < 0 ? 'var(--bad)' : 'var(--good)';
+  }
+
+  function render() {
+    const tbody = document.getElementById('rows');
+    tbody.innerHTML = "";
+    db.forEach((item, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input value="${item.name}" onchange="updateItem(${i}, 'name', this.value)" placeholder="Məs: Bolmart"></td>
+        <td>
+          <select onchange="updateItem(${i}, 'cat', this.value)">
+            ${categories.map(c => `<option value="${c.name}" ${item.cat===c.name?'selected':''}>${c.name}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="number" value="${item.amt}" onchange="updateItem(${i}, 'amt', this.value)"></td>
+        <td style="display:flex; gap:5px;">
+          <button class="btn-pay ${item.paid?'paid':''}" onclick="togglePaid(${i})">${item.paid?'✓':'Ödə'}</button>
+          <button onclick="deleteItem(${i})" style="background:none; border:none; color:var(--bad); cursor:pointer;">×</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
-    document.getElementById('annualSummary').innerHTML = `
-        <div style="background:rgba(46,229,157,0.1); padding:15px; border-radius:10px;">
-            <div style="font-size:12px; color:var(--muted)">TOPLAM YIĞIM:</div>
-            <div style="font-size:24px; font-weight:900; color:var(--good)">${savings.toFixed(2)} ₼</div>
+    updateStats();
+    save();
+  }
+
+  function renderAnalytics() {
+    const list = document.getElementById('categoryList');
+    list.innerHTML = "";
+    let total = db.reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+
+    categories.forEach(cat => {
+      let catSum = db.filter(i => i.cat === cat.name).reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+      let perc = total > 0 ? (catSum / total * 100).toFixed(1) : 0;
+
+      list.innerHTML += `
+        <div class="cat-row">
+          <div class="cat-info" style="width:150px">
+            <div class="cat-dot" style="background:${cat.color}"></div>
+            <span>${cat.name}</span>
+          </div>
+          <div class="cat-bar-bg">
+            <div class="cat-bar-fill" style="width:${perc}%; background:${cat.color}"></div>
+          </div>
+          <div style="width:100px; text-align:right">
+            <b>${catSum.toFixed(2)} ₼</b><br>
+            <small style="color:var(--muted)">${perc}%</small>
+          </div>
         </div>
-    `;
+      `;
+    });
   }
 
-  monthSelect.onchange = (e) => { currentMonth = e.target.value; init(); };
-  budgetInput.oninput = (e) => { db[currentMonth].budget = e.target.value; render(); };
+  document.getElementById('mainBudget').oninput = (e) => {
+    budget = e.target.value;
+    updateStats();
+    save();
+  };
 
-  function exportData() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-    const a = document.createElement('a');
-    a.setAttribute("href", dataStr);
-    a.setAttribute("download", "maliyya_backup.json");
-    a.click();
-  }
+  document.getElementById('currentDate').innerText = new Date().toLocaleDateString('az-AZ', { day:'numeric', month:'long', year:'numeric' });
 
-  function clearAll() {
-    if(confirm("Bütün datanı silmək istədiyinizə əminsiniz?")) {
-        db = {};
-        localStorage.clear();
-        init();
-    }
-  }
-
-  init();
+  render();
 </script>
 
 </body>
