@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v7</title>
+  <title>Maaş Hesabatı v8</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +69,7 @@
       display: grid; 
       grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
       gap: 10px; 
-      margin-bottom: 20px; 
+      margin-bottom: 15px; 
     }
     
     .stat-box { 
@@ -83,14 +83,6 @@
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
     .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; padding: 0; }
 
-    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-    .tab-link { 
-      flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); 
-      padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px;
-    }
-    .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
-
-    /* Mesaj Panelləri */
     .alert { 
         padding: 15px; border-radius: 12px; margin-bottom: 10px; 
         font-size: 14px; font-weight: 700; border: 1px solid transparent; text-align: center;
@@ -101,14 +93,21 @@
 
     .detail-msg {
         font-size: 12px;
-        padding: 10px;
+        padding: 12px;
         background: rgba(255,255,255,0.03);
         border-radius: 10px;
         margin-bottom: 20px;
         color: var(--text-dim);
-        line-height: 1.5;
+        line-height: 1.6;
         border-left: 3px solid var(--accent);
     }
+
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+    .tab-link { 
+      flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); 
+      padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px;
+    }
+    .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     
@@ -158,7 +157,7 @@
     </div>
   </header>
 
-  <!-- Dinamik Mesajlar -->
+  <!-- Dinamik Analiz Panelləri -->
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
   <div id="detailAlert" class="detail-msg">Xərclərinizi daxil etdikcə analiz bura gələcək.</div>
 
@@ -286,7 +285,7 @@
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
     let issues = [];
-    let goodNews = [];
+    let summaries = [];
 
     anaTable.innerHTML = categoryList.map(cat => {
       const target = db[currentMonth].targets[cat] || 0;
@@ -296,9 +295,7 @@
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
       
       if (diff < 0) {
-          issues.push(`⚠️ <b>${cat}</b> bölməsində hədəfi <b>${Math.abs(diff.toFixed(0))}₼</b> aşmısınız.`);
-      } else if (spent > 0 && diff > 0) {
-          goodNews.push(`${cat} üçün hələ <b>${diff.toFixed(0)}₼</b> limitiniz var.`);
+          issues.push(`⚠️ <b>${cat}</b>: Hədəfi <b>${Math.abs(diff.toFixed(0))}₼</b> aşmısınız.`);
       }
 
       return `
@@ -316,32 +313,38 @@
 
     const salary = db[currentMonth].salary || 0;
     const balance = salary - totalSpent;
+    const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
+    
     document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
-    // Status Mesajları
+    // ÜST ANA MESAJ (FAİZLƏ)
     const statusMsg = document.getElementById('statusMsg');
-    const detailAlert = document.getElementById('detailAlert');
-    const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
-
     if (salary === 0) {
         statusMsg.innerText = "Lütfən, maaş daxil edin.";
         statusMsg.className = "alert alert-neutral";
     } else if (balance < 0) {
-        statusMsg.innerText = "Kritik Vəziyyət!";
+        statusMsg.innerText = "Büdcə Aşıldı! (" + spentPerc.toFixed(0) + "%)";
         statusMsg.className = "alert alert-warn";
+    } else if (spentPerc > 85) {
+        statusMsg.innerText = "Kritik Hədd: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!";
+        statusMsg.className = "alert alert-warn";
+    } else if (spentPerc > 50) {
+        statusMsg.innerText = "Vəziyyət Orta: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
+        statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "Ümumi Vəziyyət Yaxşıdır";
+        statusMsg.innerText = "Vəziyyət Yaxşı: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib.";
         statusMsg.className = "alert alert-info";
     }
 
-    // Detallı Analiz Mətnini Formallaşdır
+    // ALT DETALLI ANALİZ (KATEQORİYALAR ÜZRƏ)
+    const detailAlert = document.getElementById('detailAlert');
     if (issues.length > 0) {
         detailAlert.innerHTML = issues.join("<br>");
         detailAlert.style.borderLeftColor = "var(--red)";
-    } else if (goodNews.length > 0) {
-        detailAlert.innerHTML = "Hələlik hədəf daxilindəsiniz. " + goodNews[0];
+    } else if (totalSpent > 0) {
+        detailAlert.innerHTML = "Hələlik bütün kateqoriyalar hədəf daxilindədir. ✅";
         detailAlert.style.borderLeftColor = "var(--green)";
     } else {
         detailAlert.innerHTML = "Xərclərinizi daxil etdikcə analiz bura gələcək.";
