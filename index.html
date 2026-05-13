@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v19 - Privacy Mode</title>
+  <title>Maaş Hesabatı v18 - Final Fix</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -19,97 +19,92 @@
     .container { max-width: 1100px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
     .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    
-    /* Göz düyməsi stili */
-    .eye-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px; transition: 0.3s; }
-    .eye-btn:hover { color: var(--accent); border-color: var(--accent); }
-
+    .select-wrapper { position: relative; width: fit-content; }
+    .select-wrapper::after { content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+    select { appearance: none; padding-right: 30px !important; background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; outline: none; }
+    .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; transition: 0.3s ease; }
+    .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
+    .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
+    .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
+    .detail-msg { font-size: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 20px; color: var(--text-main); line-height: 1.8; border-left: 3px solid var(--accent); }
     .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
-    .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); position: relative; }
+    .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
     .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
     .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; }
     
-    /* Gizli rejim üçün klas */
-    .hidden-val { filter: blur(0px); letter-spacing: 2px; }
+    /* Göz düyməsi üçün əlavə stil */
+    .eye-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-right: 10px; }
 
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
     .tab-link.active { background: var(--accent); color: #000; }
-    
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     @media (min-width: 600px) { .input-group { flex-direction: row; } }
-    
     input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
     .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; }
     .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
+    th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
-    
     .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .target-input { width: 100% !important; padding: 6px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
+    .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
     .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
-    .select-wrapper { position: relative; width: fit-content; }
-    select { appearance: none; padding-right: 30px !important; }
+    .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; padding: 5px; }
+    .btn-del-cat:hover { opacity: 1; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header>
-    <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş</div>
-    <div style="display:flex; gap:10px; align-items:center;">
-        <button class="eye-btn" onclick="togglePrivacy()" id="eyeIcon">👁️</button>
-        <div class="select-wrapper"><select id="monthSelector" onchange="init()"></select></div>
+    <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
+    <div style="display: flex; align-items: center;">
+      <!-- GÖZ DÜYMƏSİ -->
+      <button class="eye-btn" onclick="togglePrivacy()" id="eyeIcon">👁️</button>
+      <div class="select-wrapper"><select id="monthSelector" onchange="init()"></select></div>
     </div>
   </header>
 
-  <div id="statusMsg" class="alert" style="padding:15px; border-radius:12px; margin-bottom:10px; text-align:center; font-weight:700; background:var(--card); border:1px solid var(--border);">Yüklənir...</div>
+  <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
+  <div id="detailAlert" class="detail-msg">Analiz hazırlanır...</div>
 
-  <!-- Bu hissə gizlənə bilən hissədir -->
-  <div class="top-stats" id="statsContainer">
-    <div class="stat-box">
-        <label>Aylıq Maaş</label>
-        <input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0">
-    </div>
-    <div class="stat-box">
-        <label>Planlanan</label>
-        <span class="val" id="totalPlanned" style="color:var(--accent)">0 ₼</span>
-    </div>
-    <div class="stat-box">
-        <label>Ümumi Xərc</label>
-        <span class="val" id="totalSpent">0 ₼</span>
-    </div>
-    <div class="stat-box">
-        <label>Qalıq</label>
-        <span class="val" id="totalBalance">0 ₼</span>
-    </div>
+  <div class="top-stats">
+    <div class="stat-box"><label>Aylıq Maaş</label><input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0"></div>
+    <div class="stat-box"><label>Planlanan Cəm</label><span class="val" id="totalPlanned" style="color:var(--accent)">0 ₼</span></div>
+    <div class="stat-box"><label>Ümumi Xərc</label><span class="val" id="totalSpent">0 ₼</span></div>
+    <div class="stat-box"><label>Qalıq Balans</label><span class="val" id="totalBalance">0 ₼</span></div>
   </div>
 
   <div class="nav-tabs">
     <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Xərclər</button>
-    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Planlama</button>
+    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Planlama Analizi</button>
   </div>
 
   <div id="sectionPlan" class="card">
     <div class="input-group">
-      <select id="expCat" onchange="toggleOtherInput()"></select>
+      <div class="select-wrapper" style="width:100%"><select id="expCat" onchange="toggleOtherInput()"></select></div>
       <input type="text" id="otherCatInput" class="hidden" placeholder="Xərcin adı">
       <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
-    <table><tbody id="expenseTable"></tbody></table>
+    <table>
+      <thead><tr><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th style="text-align:right">SİL</th></tr></thead>
+      <tbody id="expenseTable"></tbody>
+    </table>
   </div>
 
   <div id="sectionAna" class="card hidden">
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; padding: 12px; background: rgba(255,255,255,0.03); font-size: 10px; color: var(--text-dim); font-weight: 800;">
+        <div>AD</div><div>PLAN</div><div>XƏRC</div><div>FƏRQ</div><div></div>
+    </div>
     <div id="analyticsTable"></div>
   </div>
 </div>
 
 <script>
-  // Firebase Konfiqurasiyası
   const firebaseConfig = {
     apiKey: "AIzaSyAsYLwxEwQpRliICJhr6cklZ5kE-P0jyko",
     authDomain: "maas-hesabat.firebaseapp.com",
@@ -128,9 +123,9 @@
   
   let db = {};
   let currentMonth = "";
-  let isPrivate = false;
+  let isPrivate = false; // Gizlilik vəziyyəti
 
-  // Gizlilik funksiyası
+  // Göz funksiyası
   function togglePrivacy() {
     isPrivate = !isPrivate;
     document.getElementById('eyeIcon').innerText = isPrivate ? "🙈" : "👁️";
@@ -159,8 +154,13 @@
 
     db_fb.ref('maliyya_v12').on('value', (snapshot) => {
       db = snapshot.val() || {};
+      if (!db[currentMonth]) db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
       render();
     });
+  }
+
+  function toggleOtherInput() {
+    document.getElementById('otherCatInput').classList.toggle('hidden', document.getElementById('expCat').value !== "Digər");
   }
 
   function updateSalary() {
@@ -169,79 +169,124 @@
 
   function addExpense() {
     let cat = document.getElementById('expCat').value;
-    if(cat === "Digər") cat = document.getElementById('otherCatInput').value.trim();
+    const otherVal = document.getElementById('otherCatInput').value.trim();
     const amt = parseFloat(document.getElementById('expAmt').value);
-    if (!cat || !amt) return;
-
-    let exps = (db[currentMonth] || {}).expenses || [];
+    
+    if (cat === "Digər") {
+        if (!otherVal) return alert("Xərc adını yazın!");
+        cat = otherVal;
+        let cCats = db[currentMonth].customCats || [];
+        if (!cCats.includes(cat)) {
+            cCats.push(cat);
+            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cCats);
+        }
+    }
+    if (!amt) return;
+    let exps = db[currentMonth].expenses || [];
     exps.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
     db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
     document.getElementById('expAmt').value = "";
+    document.getElementById('otherCatInput').value = "";
+    document.getElementById('expCat').value = baseCategories[0];
+    toggleOtherInput();
+  }
+
+  function deleteExp(idx) {
+    let exps = db[currentMonth].expenses;
+    exps.splice(idx, 1);
+    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
+  }
+
+  function deleteCategory(cat) {
+    if (confirm(`"${cat}" silinsin?`)) {
+        db_fb.ref(`maliyya_v12/${currentMonth}/targets`).child(safeKey(cat)).remove();
+        let cCats = db[currentMonth].customCats || [];
+        const newCats = cCats.filter(c => c !== cat);
+        db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
+    }
   }
 
   function updateTarget(cat, val) {
-    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(parseFloat(val) || 0);
+    const amount = parseFloat(val) || 0;
+    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(amount);
   }
 
-  function render() {
-    const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
-    const salaryInput = document.getElementById('monthlySalary');
-    
-    // Privacy tətbiqi
-    if (isPrivate) {
-        salaryInput.type = "password";
-        salaryInput.value = data.salary || 0;
-    } else {
-        salaryInput.type = "number";
-        salaryInput.value = data.salary || 0;
-    }
-
-    const expenses = data.expenses || [];
-    document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
-      <tr>
-        <td><b>${item.cat}</b></td>
-        <td style="font-weight:700">${isPrivate ? '****' : item.amt + ' ₼'}</td>
-        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:18px;">&times;</button></td>
-      </tr>
-    `).join('');
-
-    let totalSpent = 0, totalTargetSum = 0;
-    const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
-
-    document.getElementById('analyticsTable').innerHTML = activeCats.map(cat => {
-      const target = (data.targets || {})[safeKey(cat)] || 0;
-      const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
-      totalTargetSum += target; totalSpent += spent;
-      const diff = target - spent;
-      
-      return `
-        <div class="ana-row">
-          <div><b>${cat}</b></div>
-          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
-          <div style="font-weight:700">${isPrivate ? '***' : spent + '₼'}</div>
-          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}">${isPrivate ? '***' : diff.toFixed(0) + '₼'}</div>
-          <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${target > 0 ? (spent/target)*100 : 0}%; background:var(--accent)"></div></div>
-        </div>`;
-    }).join('');
-
-    document.getElementById('totalPlanned').innerText = isPrivate ? "****" : totalTargetSum.toFixed(0) + " ₼";
-    document.getElementById('totalSpent').innerText = isPrivate ? "****" : totalSpent.toFixed(0) + " ₼";
-    const balance = (data.salary || 0) - totalSpent;
-    document.getElementById('totalBalance').innerText = isPrivate ? "****" : balance.toFixed(0) + " ₼";
-    document.getElementById('statusMsg').innerText = balance < 0 ? "Büdcə aşıldı!" : "Vəziyyət normaldır.";
-  }
-
-  function toggleOtherInput() { document.getElementById('otherCatInput').classList.toggle('hidden', document.getElementById('expCat').value !== "Digər"); }
-  function switchTab(t) { 
-    document.getElementById('sectionPlan').classList.toggle('hidden', t !== 'plan'); 
+  function switchTab(t) {
+    document.getElementById('sectionPlan').classList.toggle('hidden', t !== 'plan');
     document.getElementById('sectionAna').classList.toggle('hidden', t !== 'ana');
     document.getElementById('tabPlan').classList.toggle('active', t === 'plan');
     document.getElementById('tabAna').classList.toggle('active', t === 'ana');
   }
-  function deleteExp(i) {
-    let exps = db[currentMonth].expenses;
-    exps.splice(i, 1);
-    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
+
+  function render() {
+    const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
+    const expenses = data.expenses || [];
+    const targets = data.targets || {};
+
+    // Maaşın gizlədilməsi
+    const salInput = document.getElementById('monthlySalary');
+    if (isPrivate) {
+      salInput.type = "password";
+      salInput.value = data.salary || 0;
+    } else {
+      salInput.type = "number";
+      salInput.value = data.salary || 0;
+    }
+    
+    document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
+      <tr>
+        <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
+        <td style="font-weight:700">${isPrivate ? '****' : item.amt + ' ₼'}</td>
+        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px; cursor:pointer;">&times;</button></td>
+      </tr>
+    `).join('');
+
+    const anaTable = document.getElementById('analyticsTable');
+    let totalSpent = 0;
+    let totalTargetSum = 0;
+    let alerts = [];
+    const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
+
+    anaTable.innerHTML = activeCats.map(cat => {
+      const target = targets[safeKey(cat)] || 0;
+      totalTargetSum += target;
+      const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
+      totalSpent += spent;
+      const diff = target - spent;
+      const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
+      const isCustom = !baseCategories.includes(cat);
+      
+      return `<div class="ana-row">
+          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
+          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
+          <div style="font-weight:700">${isPrivate ? '***' : spent + '₼'}</div>
+          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${isPrivate ? '***' : diff.toFixed(0) + '₼'}</div>
+          <div style="text-align:right">
+            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
+        </div>`;
+    }).join('');
+
+    const salary = data.salary || 0;
+    const balance = salary - totalSpent;
+    const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
+    
+    document.getElementById('totalPlanned').innerText = isPrivate ? "****" : totalTargetSum.toFixed(0) + " ₼";
+    document.getElementById('totalSpent').innerText = isPrivate ? "****" : totalSpent.toFixed(0) + " ₼";
+    document.getElementById('totalBalance').innerText = isPrivate ? "****" : balance.toFixed(0) + " ₼";
+    document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
+    
+    const statusMsg = document.getElementById('statusMsg');
+    if (salary === 0) { 
+        statusMsg.innerText = "Maaş daxil edin."; statusMsg.className = "alert alert-neutral"; 
+    } else if (balance < 0) { 
+        statusMsg.innerText = "BUDCƏ AŞILDI!"; statusMsg.className = "alert alert-warn"; 
+    } else {
+        statusMsg.innerText = "Vəziyyət yaxşı."; statusMsg.className = "alert alert-info";
+    }
+
+    document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
   }
 
   init();
