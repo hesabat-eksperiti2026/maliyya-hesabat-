@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maliyyə Pro - Mobil Uyğun</title>
+  <title>Maaş Hesabatı</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -43,67 +42,83 @@
       border-bottom: 1px solid var(--border);
     }
     
-    h1 { margin: 0; font-size: 20px; font-weight: 800; }
-    .month-picker select { padding: 8px; font-size: 13px; }
+    /* Refresh edən başlıq */
+    .brand { 
+        margin: 0; 
+        font-size: 22px; 
+        font-weight: 900; 
+        cursor: pointer; 
+        color: var(--accent);
+        user-select: none;
+    }
+    .brand:active { opacity: 0.7; }
+
+    /* Ox işarəsi olan selectlər */
+    .select-wrapper { position: relative; width: fit-content; }
+    .select-wrapper::after {
+        content: "▼";
+        font-size: 10px;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-dim);
+        pointer-events: none;
+    }
+
+    select { 
+        appearance: none;
+        padding-right: 30px !important;
+    }
 
     /* Top Stats */
     .top-stats { 
       display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-      gap: 12px; 
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+      gap: 10px; 
       margin-bottom: 20px; 
     }
     
     .stat-box { 
       background: var(--card); 
-      padding: 15px; 
+      padding: 12px; 
       border-radius: 12px; 
       border: 1px solid var(--border);
     }
     
-    .stat-box label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; display: block; }
-    .stat-box .val { font-size: 18px; font-weight: 800; margin-top: 5px; display: block; }
+    .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
+    .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
     .stat-box input { 
-      background: rgba(255,159,26,0.05); 
-      border: 1px solid var(--accent); 
-      color: var(--accent); 
-      font-size: 18px; 
-      font-weight: 800; 
-      width: 100%; 
-      padding: 5px; 
-      border-radius: 6px;
-      outline: none;
+      background: none; border: none; color: var(--accent); 
+      font-size: 16px; font-weight: 800; width: 100%; outline: none; padding: 0;
     }
 
-    /* Tabs */
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
     .tab-link { 
-      flex: 1;
-      background: none; border: 1px solid var(--border); color: var(--text-dim); 
-      padding: 10px 5px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 12px;
+      flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); 
+      padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px;
     }
     .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-    /* Smart Alert */
-    .alert { padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); }
-    .alert-info { background: rgba(46,229,157,0.1); color: var(--green); }
-    .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); }
-
-    /* Form Design - MOBİL ÜÇÜN DÜZƏLİŞ */
-    .input-group { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 12px; 
-      padding: 15px; 
-      background: rgba(255,255,255,0.02); 
+    /* Dinamik Mesaj Paneli */
+    .alert { 
+        padding: 15px; 
+        border-radius: 12px; 
+        margin-bottom: 20px; 
+        font-size: 14px; 
+        font-weight: 700; 
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+        text-align: center;
     }
+    .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
+    .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
+    .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
+
+    .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     
     @media (min-width: 600px) {
       .input-group { flex-direction: row; }
-      .input-group select { flex: 2; }
-      .input-group input { flex: 1; }
-      .input-group button { flex: 1; }
-      h1 { font-size: 28px; }
     }
 
     input, select { 
@@ -113,23 +128,21 @@
 
     .btn-primary { 
       background: var(--accent); color: #000; border: none; padding: 14px; 
-      border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px;
+      border-radius: 10px; font-weight: 900; cursor: pointer;
     }
 
-    /* Table */
     .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 11px; color: var(--text-dim); }
+    th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
 
-    /* Analytics */
     .ana-row { 
       display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; 
       padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px;
     }
-    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; }
-    .prog-bar-bg { grid-column: span 4; height: 5px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 4px; }
-    .prog-bar-fill { height: 100%; transition: 0.4s; }
+    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border-style: dashed !important; }
+    .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+    .prog-bar-fill { height: 100%; transition: 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
     .hidden { display: none; }
   </style>
@@ -138,8 +151,8 @@
 
 <div class="container">
   <header>
-    <h1>Maliyyə Pro</h1>
-    <div class="month-picker">
+    <div class="brand" onclick="window.location.reload()">Maaş Hesabatı</div>
+    <div class="select-wrapper">
       <select id="monthSelector" onchange="changeMonth()">
         <option value="May_2026">May 2026</option>
         <option value="Iyun_2026">İyun 2026</option>
@@ -148,32 +161,34 @@
     </div>
   </header>
 
-  <div id="statusMsg" class="alert alert-info">Sistem aktivdir.</div>
+  <div id="statusMsg" class="alert alert-neutral">Məlumatlar yüklənir...</div>
 
   <div class="top-stats">
     <div class="stat-box">
-      <label>Maaş</label>
-      <input type="number" id="monthlySalary" onchange="updateSalary()">
+      <label>Aylıq Maaş</label>
+      <input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0">
     </div>
     <div class="stat-box">
-      <label>Xərc</label>
+      <label>Ümumi Xərc</label>
       <span class="val" id="totalSpent">0 ₼</span>
     </div>
     <div class="stat-box">
-      <label>Qalıq</label>
+      <label>Qalıq Balans</label>
       <span class="val" id="totalBalance">0 ₼</span>
     </div>
   </div>
 
   <div class="nav-tabs">
-    <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Xərclər</button>
+    <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Planlama</button>
     <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Analitika</button>
   </div>
 
   <div id="sectionPlan" class="card">
     <div class="input-group">
-      <select id="expCat"></select>
-      <input type="number" id="expAmt" placeholder="Məbləğ" inputmode="decimal">
+      <div class="select-wrapper" style="width:100%">
+        <select id="expCat"></select>
+      </div>
+      <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
 
@@ -221,7 +236,7 @@
         }
       };
     }
-    document.getElementById('monthlySalary').value = db[currentMonth].salary;
+    document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
     render();
   }
 
@@ -236,7 +251,7 @@
     const cat = document.getElementById('expCat').value;
     const amt = parseFloat(document.getElementById('expAmt').value);
     if (!amt) return;
-    db[currentMonth].expenses.unshift({ cat, amt, date: new Date().toLocaleDateString() });
+    db[currentMonth].expenses.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
     document.getElementById('expAmt').value = "";
     save(); render();
   }
@@ -266,7 +281,7 @@
       <tr>
         <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
         <td style="font-weight:700">${item.amt} ₼</td>
-        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px;">&times;</button></td>
+        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px; cursor:pointer;">&times;</button></td>
       </tr>
     `).join('');
 
@@ -283,7 +298,7 @@
           <div><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
-          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff}₼</div>
+          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff > 0 ? '+'+diff : diff}₼</div>
           <div class="prog-bar-bg">
             <div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div>
           </div>
@@ -291,15 +306,32 @@
       `;
     }).join('');
 
-    const salary = db[currentMonth].salary;
+    const salary = db[currentMonth].salary || 0;
     const balance = salary - totalSpent;
     document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
+    // DİNAMİK MESAJ MƏNTİQİ
     const statusMsg = document.getElementById('statusMsg');
-    statusMsg.innerText = balance < 0 ? "Büdcə aşıldı!" : "Vəziyyət yaxşıdır.";
-    statusMsg.className = balance < 0 ? "alert alert-warn" : "alert alert-info";
+    const spentPercentage = salary > 0 ? (totalSpent / salary) * 100 : 0;
+
+    if (salary === 0) {
+        statusMsg.innerText = "Lütfən, cari ay üçün maaş daxil edin.";
+        statusMsg.className = "alert alert-neutral";
+    } else if (balance < 0) {
+        statusMsg.innerText = "Kritik vəziyyət! Büdcəni " + Math.abs(balance.toFixed(0)) + " ₼ aşmısınız!";
+        statusMsg.className = "alert alert-warn";
+    } else if (spentPercentage > 85) {
+        statusMsg.innerText = "Diqqət: Maaşın " + spentPercentage.toFixed(0) + "%-i bitib. Çox az qalıb!";
+        statusMsg.className = "alert alert-warn";
+    } else if (spentPercentage > 50) {
+        statusMsg.innerText = "Maaşın yarısını xərcləmisiniz. Qalıq: " + balance.toFixed(0) + " ₼";
+        statusMsg.className = "alert alert-info";
+    } else {
+        statusMsg.innerText = "Hər şey qaydasındadır. Büdcənizin " + (100 - spentPercentage).toFixed(0) + "%-i hələ əlinizdədir.";
+        statusMsg.className = "alert alert-info";
+    }
   }
 
   init();
