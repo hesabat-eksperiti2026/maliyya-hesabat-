@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v14</title>
+  <title>Maaş Hesabatı v15</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -44,26 +44,24 @@
     table { width: 100%; border-collapse: collapse; }
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
-    .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
     .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border: 1px dashed var(--border); }
-    .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+    .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
+    .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; }
+    .btn-del-cat:hover { opacity: 1; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header>
-    <div class="brand" onclick="window.location.reload()">
-      <span>💸</span> Maaş Hesabatı
-    </div>
-    <div class="select-wrapper">
-      <select id="monthSelector" onchange="init()"></select>
-    </div>
+    <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
+    <div class="select-wrapper"><select id="monthSelector" onchange="init()"></select></div>
   </header>
 
-  <div id="statusMsg" class="alert alert-neutral">Firebase-ə bağlanılır...</div>
+  <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
   <div id="detailAlert" class="detail-msg">Analiz hazırlanır...</div>
 
   <div class="top-stats">
@@ -90,7 +88,12 @@
     </table>
   </div>
 
-  <div id="sectionAna" class="card hidden"><div id="analyticsTable"></div></div>
+  <div id="sectionAna" class="card hidden">
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; padding: 12px; background: rgba(255,255,255,0.03); font-size: 10px; color: var(--text-dim); font-weight: 800;">
+        <div>AD</div><div>PLAN</div><div>XƏRC</div><div>FƏRQ</div><div></div>
+    </div>
+    <div id="analyticsTable"></div>
+  </div>
 </div>
 
 <script>
@@ -142,8 +145,7 @@
   }
 
   function updateSalary() {
-    const val = parseFloat(document.getElementById('monthlySalary').value) || 0;
-    db_fb.ref(`maliyya_v12/${currentMonth}/salary`).set(val);
+    db_fb.ref(`maliyya_v12/${currentMonth}/salary`).set(parseFloat(document.getElementById('monthlySalary').value) || 0);
   }
 
   function addExpense() {
@@ -161,11 +163,9 @@
         }
     }
     if (!amt) return;
-    
     let exps = db[currentMonth].expenses || [];
     exps.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
     db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
-
     document.getElementById('expAmt').value = "";
     document.getElementById('otherCatInput').value = "";
     document.getElementById('expCat').value = baseCategories[0];
@@ -176,6 +176,20 @@
     let exps = db[currentMonth].expenses;
     exps.splice(idx, 1);
     db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
+  }
+
+  // Kateqoriyanı Planlamadan silmək
+  function deleteCategory(cat) {
+    if (confirm(`"${cat}" kateqoriyasını və planını silmək istəyirsiniz?`)) {
+        // Targets-dən sil
+        if (db[currentMonth].targets && db[currentMonth].targets[cat]) {
+            db_fb.ref(`maliyya_v12/${currentMonth}/targets/${cat}`).remove();
+        }
+        // CustomCats-dan sil
+        let cCats = db[currentMonth].customCats || [];
+        const newCats = cCats.filter(c => c !== cat);
+        db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
+    }
   }
 
   function updateTarget(cat, val) {
@@ -212,6 +226,7 @@
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
+      const isCustom = !baseCategories.includes(cat);
       
       if (target > 0) {
           if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq xərcləmisən!</span>`);
@@ -219,10 +234,13 @@
       }
 
       return `<div class="ana-row">
-          <div><b>${cat}</b></div>
+          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
           <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
+          <div style="text-align:right">
+            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
+          </div>
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
         </div>`;
     }).join('');
@@ -237,20 +255,15 @@
     
     const statusMsg = document.getElementById('statusMsg');
     if (salary === 0) { 
-        statusMsg.innerText = "Maaş daxil edin."; 
-        statusMsg.className = "alert alert-neutral"; 
+        statusMsg.innerText = "Maaş daxil edin."; statusMsg.className = "alert alert-neutral"; 
     } else if (balance < 0) { 
-        statusMsg.innerText = "BUDCƏ AŞILDI! (" + spentPerc.toFixed(0) + "%)"; 
-        statusMsg.className = "alert alert-warn"; 
+        statusMsg.innerText = "BUDCƏ AŞILDI! (" + spentPerc.toFixed(0) + "%)"; statusMsg.className = "alert alert-warn"; 
     } else if (spentPerc > 85) {
-        statusMsg.innerText = "KRİTİK VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!";
-        statusMsg.className = "alert alert-warn";
+        statusMsg.innerText = "KRİTİK VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
     } else if (spentPerc > 50) {
-        statusMsg.innerText = "ORTA VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
-        statusMsg.className = "alert alert-info";
+        statusMsg.innerText = "ORTA VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "VƏZİYYƏT YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib.";
-        statusMsg.className = "alert alert-info";
+        statusMsg.innerText = "VƏZİYYƏT YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     }
 
     document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
