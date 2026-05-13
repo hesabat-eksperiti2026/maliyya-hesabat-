@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v16</title>
+  <title>Maaş Hesabatı v17</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -45,11 +45,11 @@
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
     .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border: 1px dashed var(--border); }
+    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border: 1px dashed var(--border); border-radius: 4px; }
     .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
-    .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; }
+    .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; padding: 5px; }
     .btn-del-cat:hover { opacity: 1; }
   </style>
 </head>
@@ -181,17 +181,17 @@
 
   function deleteCategory(cat) {
     if (confirm(`"${cat}" kateqoriyasını və planını silmək istəyirsiniz?`)) {
-        if (db[currentMonth].targets && db[currentMonth].targets[cat]) {
-            db_fb.ref(`maliyya_v12/${currentMonth}/targets/${cat}`).remove();
-        }
+        db_fb.ref(`maliyya_v12/${currentMonth}/targets`).child(cat).remove();
         let cCats = db[currentMonth].customCats || [];
         const newCats = cCats.filter(c => c !== cat);
         db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
     }
   }
 
+  // Burada kateqoriya adını təhlükəsiz göndərmək üçün child(cat) metodundan istifadə etdik
   function updateTarget(cat, val) {
-    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${cat}`).set(parseFloat(val) || 0);
+    const amount = parseFloat(val) || 0;
+    db_fb.ref(`maliyya_v12/${currentMonth}/targets`).child(cat).set(amount);
   }
 
   function switchTab(t) {
@@ -221,7 +221,7 @@
 
     anaTable.innerHTML = activeCats.map(cat => {
       const target = (data.targets || {})[cat] || 0;
-      totalTargetSum += target; // Ümumi planın cəmi bura əlavə olunur
+      totalTargetSum += target;
 
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
@@ -234,13 +234,16 @@
           else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət etmisən.</span>`);
       }
 
+      // Input-da onChange hadisəsinə kateqoriya adını dırnaq içində düzgün ötürmək üçün escape etdik
+      const catEscaped = cat.replace(/'/g, "\\'");
+
       return `<div class="ana-row">
           <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
-          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
+          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${catEscaped}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
           <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
           <div style="text-align:right">
-            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
+            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${catEscaped}')">🗑️</button>` : ''}
           </div>
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
         </div>`;
@@ -250,7 +253,6 @@
     const balance = salary - totalSpent;
     const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
     
-    // Yuxarıdakı statların yenilənməsi
     document.getElementById('totalPlanned').innerText = totalTargetSum.toFixed(0) + " ₼";
     document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
