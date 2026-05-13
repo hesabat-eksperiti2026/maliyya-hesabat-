@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı</title>
+  <title>Maaş Hesabatı v6</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,12 +37,11 @@
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 25px; 
+      margin-bottom: 20px; 
       padding-bottom: 15px;
       border-bottom: 1px solid var(--border);
     }
     
-    /* Refresh edən başlıq */
     .brand { 
         margin: 0; 
         font-size: 22px; 
@@ -53,7 +52,6 @@
     }
     .brand:active { opacity: 0.7; }
 
-    /* Ox işarəsi olan selectlər */
     .select-wrapper { position: relative; width: fit-content; }
     .select-wrapper::after {
         content: "▼";
@@ -66,12 +64,8 @@
         pointer-events: none;
     }
 
-    select { 
-        appearance: none;
-        padding-right: 30px !important;
-    }
+    select { appearance: none; padding-right: 30px !important; }
 
-    /* Top Stats */
     .top-stats { 
       display: grid; 
       grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
@@ -88,10 +82,7 @@
     
     .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
-    .stat-box input { 
-      background: none; border: none; color: var(--accent); 
-      font-size: 16px; font-weight: 800; width: 100%; outline: none; padding: 0;
-    }
+    .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; padding: 0; }
 
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
     .tab-link { 
@@ -100,16 +91,9 @@
     }
     .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-    /* Dinamik Mesaj Paneli */
     .alert { 
-        padding: 15px; 
-        border-radius: 12px; 
-        margin-bottom: 20px; 
-        font-size: 14px; 
-        font-weight: 700; 
-        border: 1px solid transparent;
-        transition: all 0.3s ease;
-        text-align: center;
+        padding: 15px; border-radius: 12px; margin-bottom: 20px; 
+        font-size: 14px; font-weight: 700; border: 1px solid transparent; text-align: center;
     }
     .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
@@ -117,21 +101,13 @@
 
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     
-    @media (min-width: 600px) {
-      .input-group { flex-direction: row; }
-    }
+    @media (min-width: 600px) { .input-group { flex-direction: row; } }
 
-    input, select { 
-      background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; 
-      border-radius: 10px; font-size: 14px; width: 100%;
-    }
+    input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; }
 
-    .btn-primary { 
-      background: var(--accent); color: #000; border: none; padding: 14px; 
-      border-radius: 10px; font-weight: 900; cursor: pointer;
-    }
+    .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
-    .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+    .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
@@ -142,7 +118,17 @@
     }
     .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border-style: dashed !important; }
     .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
-    .prog-bar-fill { height: 100%; transition: 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+    .prog-bar-fill { height: 100%; transition: 0.6s ease; }
+
+    /* Backup düymələri üçün stil */
+    .backup-section {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px;
+        background: rgba(255,255,255,0.01); border-top: 1px solid var(--border);
+    }
+    .btn-backup {
+        background: #21262d; color: white; border: 1px solid var(--border);
+        padding: 12px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer;
+    }
 
     .hidden { display: none; }
   </style>
@@ -157,11 +143,12 @@
         <option value="May_2026">May 2026</option>
         <option value="Iyun_2026">İyun 2026</option>
         <option value="Iyul_2026">İyul 2026</option>
+        <option value="Avqust_2026">Avqust 2026</option>
       </select>
     </div>
   </header>
 
-  <div id="statusMsg" class="alert alert-neutral">Məlumatlar yüklənir...</div>
+  <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
 
   <div class="top-stats">
     <div class="stat-box">
@@ -183,6 +170,7 @@
     <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Analitika</button>
   </div>
 
+  <!-- PLANLAMA BÖLMƏSİ -->
   <div id="sectionPlan" class="card">
     <div class="input-group">
       <div class="select-wrapper" style="width:100%">
@@ -204,8 +192,16 @@
     </table>
   </div>
 
+  <!-- ANALİTİKA BÖLMƏSİ -->
   <div id="sectionAna" class="card hidden">
     <div id="analyticsTable"></div>
+    
+    <!-- Yedəkləmə Düymələri -->
+    <div class="backup-section">
+        <button class="btn-backup" onclick="exportJSON()">📥 Yedəklə (JSON)</button>
+        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 Məlumatı Yüklə</button>
+        <input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
+    </div>
   </div>
 </div>
 
@@ -226,14 +222,8 @@
 
     if (!db[currentMonth]) {
       db[currentMonth] = {
-        salary: 0,
-        expenses: [],
-        targets: {
-            "Kredit": 650, "Şaxnuz maaş": 500, "Komunal": 100, "Xalidə x. komunal": 80,
-            "Kontur": 30, "Borc": 100, "Ehtiyat pul": 0, "Benzin": 50, "İstirahət": 350,
-            "Paltar": 50, "Baxım": 50, "Həkim": 0, "Bazarlıq": 400, "ARslan bazarlıq": 250,
-            "Ət": 50, "Restoran": 100
-        }
+        salary: 0, expenses: [],
+        targets: { "Kredit": 650, "Şaxnuz maaş": 500, "Komunal": 100, "Xalidə x. komunal": 80, "Kontur": 30, "Borc": 100, "Ehtiyat pul": 0, "Benzin": 50, "İstirahət": 350, "Paltar": 50, "Baxım": 50, "Həkim": 0, "Bazarlıq": 400, "ARslan bazarlıq": 250, "Ət": 50, "Restoran": 100 }
       };
     }
     document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
@@ -298,7 +288,7 @@
           <div><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
-          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff > 0 ? '+'+diff : diff}₼</div>
+          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
           <div class="prog-bar-bg">
             <div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div>
           </div>
@@ -312,26 +302,50 @@
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
-    // DİNAMİK MESAJ MƏNTİQİ
     const statusMsg = document.getElementById('statusMsg');
-    const spentPercentage = salary > 0 ? (totalSpent / salary) * 100 : 0;
+    const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
 
     if (salary === 0) {
-        statusMsg.innerText = "Lütfən, cari ay üçün maaş daxil edin.";
+        statusMsg.innerText = "Lütfən, maaş daxil edin.";
         statusMsg.className = "alert alert-neutral";
     } else if (balance < 0) {
-        statusMsg.innerText = "Kritik vəziyyət! Büdcəni " + Math.abs(balance.toFixed(0)) + " ₼ aşmısınız!";
+        statusMsg.innerText = "Büdcəni " + Math.abs(balance.toFixed(0)) + " ₼ aşmısınız!";
         statusMsg.className = "alert alert-warn";
-    } else if (spentPercentage > 85) {
-        statusMsg.innerText = "Diqqət: Maaşın " + spentPercentage.toFixed(0) + "%-i bitib. Çox az qalıb!";
+    } else if (spentPerc > 85) {
+        statusMsg.innerText = "Diqqət: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
         statusMsg.className = "alert alert-warn";
-    } else if (spentPercentage > 50) {
-        statusMsg.innerText = "Maaşın yarısını xərcləmisiniz. Qalıq: " + balance.toFixed(0) + " ₼";
-        statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "Hər şey qaydasındadır. Büdcənizin " + (100 - spentPercentage).toFixed(0) + "%-i hələ əlinizdədir.";
+        statusMsg.innerText = "Hər şey qaydasındadır. Qalıq: " + balance.toFixed(0) + " ₼";
         statusMsg.className = "alert alert-info";
     }
+  }
+
+  // Backup Funksiyaları
+  function exportJSON() {
+    const dataStr = localStorage.getItem('maliyya_v5_db');
+    if(!dataStr) return alert("Yadda saxlanılacaq məlumat yoxdur!");
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `maliyya_backup.json`;
+    link.click();
+  }
+
+  function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        localStorage.setItem('maliyya_v5_db', JSON.stringify(importedData));
+        db = importedData;
+        alert("Məlumatlar uğurla yükləndi!");
+        init();
+      } catch (err) { alert("Fayl oxunmadı!"); }
+    };
+    reader.readAsText(file);
   }
 
   init();
