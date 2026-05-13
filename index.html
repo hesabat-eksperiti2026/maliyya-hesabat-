@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v15</title>
+  <title>Maaş Hesabatı v16</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -28,7 +28,7 @@
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
     .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
     .detail-msg { font-size: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 20px; color: var(--text-main); line-height: 1.8; border-left: 3px solid var(--accent); }
-    .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
+    .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
     .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
     .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
@@ -66,6 +66,7 @@
 
   <div class="top-stats">
     <div class="stat-box"><label>Aylıq Maaş</label><input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0"></div>
+    <div class="stat-box"><label>Planlanan Cəm</label><span class="val" id="totalPlanned" style="color:var(--accent)">0 ₼</span></div>
     <div class="stat-box"><label>Ümumi Xərc</label><span class="val" id="totalSpent">0 ₼</span></div>
     <div class="stat-box"><label>Qalıq Balans</label><span class="val" id="totalBalance">0 ₼</span></div>
   </div>
@@ -178,14 +179,11 @@
     db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
   }
 
-  // Kateqoriyanı Planlamadan silmək
   function deleteCategory(cat) {
     if (confirm(`"${cat}" kateqoriyasını və planını silmək istəyirsiniz?`)) {
-        // Targets-dən sil
         if (db[currentMonth].targets && db[currentMonth].targets[cat]) {
             db_fb.ref(`maliyya_v12/${currentMonth}/targets/${cat}`).remove();
         }
-        // CustomCats-dan sil
         let cCats = db[currentMonth].customCats || [];
         const newCats = cCats.filter(c => c !== cat);
         db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
@@ -217,11 +215,14 @@
 
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
+    let totalTargetSum = 0;
     let alerts = [];
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
 
     anaTable.innerHTML = activeCats.map(cat => {
       const target = (data.targets || {})[cat] || 0;
+      totalTargetSum += target; // Ümumi planın cəmi bura əlavə olunur
+
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
@@ -249,6 +250,8 @@
     const balance = salary - totalSpent;
     const spentPerc = salary > 0 ? (totalSpent / salary) * 100 : 0;
     
+    // Yuxarıdakı statların yenilənməsi
+    document.getElementById('totalPlanned').innerText = totalTargetSum.toFixed(0) + " ₼";
     document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
