@@ -3,245 +3,260 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Maliyyə Paneli v3</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <title>Maliyyə Nəzarəti - Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Excel üçün kitabxana -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     :root {
       --bg: #0c0f14;
-      --card-bg: rgba(255,255,255,0.04);
+      --card: rgba(255,255,255,0.05);
       --stroke: rgba(255,255,255,0.1);
-      --text: #ffffff;
-      --muted: #8a8f98;
       --yellow: #ff9f1a;
-      --good: #2ee59d;
-      --bad: #ff6b6b;
-      --shadow: 0 20px 50px rgba(0,0,0,0.5);
+      --green: #2ee59d;
+      --red: #ff6b6b;
+      --text: #ffffff;
     }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 15px; }
+    .wrap { max-width: 1000px; margin: 0 auto; }
+    
+    /* Header & Selects */
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+    select, input { background: #1a1f26; border: 1px solid var(--stroke); color: #fff; padding: 10px; border-radius: 10px; outline: none; }
+    
+    /* Status Notification */
+    .status-alert { padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 700; text-align: center; border: 1px solid var(--stroke); }
+    .status-good { background: rgba(46,229,157,0.15); color: var(--green); border-color: var(--green); }
+    .status-warning { background: rgba(255,159,26,0.15); color: var(--yellow); border-color: var(--yellow); }
+    .status-danger { background: rgba(255,107,107,0.15); color: var(--red); border-color: var(--red); }
 
-    body {
-      margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px;
-      background-image: radial-gradient(circle at top right, rgba(255,159,26,0.08), transparent);
-    }
-
-    .container { max-width: 1000px; margin: 0 auto; }
-
-    /* Header & Tabs */
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-    .tabs { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
-    .tab-btn { 
-      flex: 1; padding: 10px; border: none; background: none; color: var(--muted); cursor: pointer; 
-      border-radius: 8px; font-weight: 600; transition: 0.3s; 
-    }
+    /* Tabs */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 12px; border: none; background: var(--card); color: #fff; border-radius: 10px; cursor: pointer; font-weight: 700; }
     .tab-btn.active { background: var(--yellow); color: #000; }
 
-    /* Stats Cards */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--stroke); padding: 20px; border-radius: 15px; text-align: center; }
-    .stat-card span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
-    .stat-card b { font-size: 22px; font-weight: 900; }
+    /* Tables */
+    .card { background: var(--card); border: 1px solid var(--stroke); border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th { text-align: left; font-size: 12px; color: var(--yellow); padding: 10px; border-bottom: 1px solid var(--stroke); }
+    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
 
-    /* Forms & Tables */
-    .card { background: var(--card-bg); border: 1px solid var(--stroke); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); }
-    .section { display: none; padding: 20px; }
-    .section.active { display: block; }
+    /* Analytics Styles */
+    .ana-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 10px; padding: 12px; border-bottom: 1px solid var(--stroke); align-items: center; }
+    .progress-bg { height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; grid-column: span 4; margin-top: 5px; position: relative; }
+    .progress-fill { height: 100%; border-radius: 10px; transition: 0.4s; }
 
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 12px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--stroke); }
-    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .btn-add { background: var(--yellow); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; }
+    .btn-export { background: #fff; color: #000; font-size: 12px; margin-top: 10px; }
 
-    input, select { 
-      background: rgba(0,0,0,0.3); border: 1px solid var(--stroke); color: #fff; padding: 8px; 
-      border-radius: 8px; width: 100%; outline: none; font-family: inherit;
-    }
-
-    button.add-btn { background: var(--yellow); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; }
-    
-    /* Analytics UI */
-    .cat-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 10px; }
-    .cat-info { display: flex; align-items: center; gap: 12px; }
-    .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .cat-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.05); margin: 0 15px; border-radius: 10px; position: relative; }
-    .cat-bar-fill { position: absolute; height: 100%; border-radius: 10px; transition: 0.5s; }
-
-    .btn-pay { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--stroke); background: none; color: #fff; cursor: pointer; }
-    .btn-pay.paid { background: var(--good); color: #000; border: none; font-weight: bold; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
+<div class="wrap">
+  <div class="top-nav">
     <div>
-      <h1 style="margin:0">Maliyyə İdarəetmə</h1>
-      <p id="currentDate" style="color:var(--muted); margin:5px 0 0; font-size: 13px;"></p>
+      <h2 style="margin:0">Maliyyə Planlayıcı</h2>
+      <select id="monthSelector" onchange="changeMonth()">
+        <option value="May_2026">May 2026</option>
+        <option value="Iyun_2026">İyun 2026</option>
+        <option value="Iyul_2026">İyul 2026</option>
+      </select>
     </div>
-    <div style="text-align: right;">
-        <span style="font-size:11px; color:var(--muted)">AYLIQ BÜDCƏ</span><br>
-        <input type="number" id="mainBudget" value="2500" style="width:100px; font-weight:900; font-size:18px; color:var(--yellow); text-align:right; border:none; background:none;"> <b style="color:var(--yellow)">₼</b>
-    </div>
+    <button class="btn-add btn-export" onclick="exportToExcel()">Excel-ə çıxar (.xlsx)</button>
+  </div>
+
+  <!-- Ağıllı Bildiriş -->
+  <div id="smartAlert" class="status-alert status-good">
+    Yüklənir...
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('planning')">Planlama (Cədvəl)</button>
-    <button class="tab-btn" onclick="showTab('analytics')">Analitika (Bölgü)</button>
+    <button id="btn-plan" class="tab-btn active" onclick="switchTab('plan')">Planlama</button>
+    <button id="btn-ana" class="tab-btn" onclick="switchTab('ana')">Analitika (Hədəf vs Real)</button>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card"><span>Ümumi Xərc</span><b id="totalSpent">0 ₼</b></div>
-    <div class="stat-card"><span>Qalıq Balans</span><b id="balance" style="color:var(--good)">0 ₼</b></div>
-    <div class="stat-card"><span>İllik Yığım</span><b id="annualSavings" style="color:var(--yellow)">0 ₼</b></div>
+  <!-- PLANLAMA -->
+  <div id="section-plan" class="card">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+      <div>
+        <label style="font-size:12px">Kateqoriya Seç:</label>
+        <select id="catSelect" style="width:100%"></select>
+      </div>
+      <div>
+        <label style="font-size:12px">Məbləğ (₼):</label>
+        <input type="number" id="amtInput" style="width:100%" placeholder="Məs: 50">
+      </div>
+    </div>
+    <button class="btn-add" onclick="addNewExpense()">Əlavə Et</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>KATEQORİYA</th>
+          <th>MƏBLƏĞ</th>
+          <th>TARİX</th>
+          <th>SİL</th>
+        </tr>
+      </thead>
+      <tbody id="expenseList"></tbody>
+    </table>
   </div>
 
-  <div class="card">
-    <!-- Planning Section -->
-    <div id="planning" class="section active">
-      <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
-        <strong style="font-size:18px">Xərc Siyahısı</strong>
-        <button class="add-btn" onclick="addRow()">+ Yeni Xərc</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40%">Mənbə</th>
-            <th style="width:25%">Kateqoriya</th>
-            <th style="width:20%">Məbləğ</th>
-            <th style="width:15%">Status</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
+  <!-- ANALİTİKA -->
+  <div id="section-ana" class="card hidden">
+    <div class="ana-row" style="font-weight:bold; border-bottom: 2px solid var(--yellow); color: var(--yellow)">
+      <div>Kateqoriya</div>
+      <div>Hədəf</div>
+      <div>Xərc</div>
+      <div>Qalıq</div>
     </div>
-
-    <!-- Analytics Section -->
-    <div id="analytics" class="section">
-      <strong style="font-size:18px; display:block; margin-bottom:20px;">Kateqoriya üzrə xərclər</strong>
-      <div id="categoryList">
-        <!-- JS ilə dolacaq -->
-      </div>
-    </div>
+    <div id="analyticsBody"></div>
   </div>
 </div>
 
 <script>
-  let db = JSON.parse(localStorage.getItem('fin_v3_data')) || [];
-  let budget = localStorage.getItem('fin_v3_budget') || 2500;
+  // Sabit Kateqoriyalar və Limitlər
+  const defaultTargets = {
+    "Kredit": 650, "Şaxnuz maaş": 500, "Komunal": 100, "Xalidə x. komunal": 80,
+    "Kontur": 30, "Borc": 100, "Ehtiyat pul": 0, "Benzin": 50, "İstirahət": 350,
+    "Paltar": 50, "Baxım": 50, "Həkim": 0, "Bazarlıq": 400, "ARslan bazarlıq": 250,
+    "Ət": 50, "Restoran": 100
+  };
 
-  const categories = [
-    { name: "Market", color: "#3498db" },
-    { name: "Restoran/Kafe", color: "#e67e22" },
-    { name: "Nəqliyyat", color: "#9b59b6" },
-    { name: "Kommunal", color: "#f1c40f" },
-    { name: "İllik Yığım", color: "#2ecc71" },
-    { name: "Geyim/Şəxsi", color: "#e74c3c" },
-    { name: "Digər", color: "#95a5a6" }
-  ];
+  let db = JSON.parse(localStorage.getItem('fin_v4_db')) || {};
+  let currentMonth = document.getElementById('monthSelector').value;
 
-  function showTab(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    event.currentTarget.classList.add('active');
-    if(id === 'analytics') renderAnalytics();
-  }
+  function init() {
+    // Kateqoriya seçimini doldur
+    const select = document.getElementById('catSelect');
+    select.innerHTML = "";
+    Object.keys(defaultTargets).forEach(cat => {
+      select.innerHTML += `<option value="${cat}">${cat}</option>`;
+    });
 
-  function addRow() {
-    db.push({ name: "", cat: "Market", amt: 0, paid: false });
+    if (!db[currentMonth]) db[currentMonth] = [];
     render();
   }
 
-  function updateItem(idx, key, val) {
-    db[idx][key] = val;
+  function changeMonth() {
+    currentMonth = document.getElementById('monthSelector').value;
+    if (!db[currentMonth]) db[currentMonth] = [];
+    render();
+  }
+
+  function addNewExpense() {
+    const cat = document.getElementById('catSelect').value;
+    const amt = parseFloat(document.getElementById('amtInput').value);
+    if (!amt || amt <= 0) return;
+
+    db[currentMonth].push({
+      cat, amt, date: new Date().toLocaleDateString('az-AZ')
+    });
+    
+    document.getElementById('amtInput').value = "";
     save();
-    updateStats();
+    render();
   }
 
   function deleteItem(idx) {
-    db.splice(idx, 1);
-    render();
-  }
-
-  function togglePaid(idx) {
-    db[idx].paid = !db[idx].paid;
+    db[currentMonth].splice(idx, 1);
+    save();
     render();
   }
 
   function save() {
-    localStorage.setItem('fin_v3_data', JSON.stringify(db));
-    localStorage.setItem('fin_v3_budget', budget);
+    localStorage.setItem('fin_v4_db', JSON.stringify(db));
   }
 
-  function updateStats() {
-    let total = db.reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
-    let savings = db.filter(i => i.cat === "İllik Yığım").reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
-    
-    document.getElementById('totalSpent').innerText = total.toFixed(2) + " ₼";
-    document.getElementById('balance').innerText = (budget - total).toFixed(2) + " ₼";
-    document.getElementById('annualSavings').innerText = savings.toFixed(2) + " ₼";
-    
-    document.getElementById('balance').style.color = (budget - total) < 0 ? 'var(--bad)' : 'var(--good)';
+  function switchTab(type) {
+    document.getElementById('section-plan').classList.toggle('hidden', type !== 'plan');
+    document.getElementById('section-ana').classList.toggle('hidden', type !== 'ana');
+    document.getElementById('btn-plan').classList.toggle('active', type === 'plan');
+    document.getElementById('btn-ana').classList.toggle('active', type === 'ana');
+    if(type === 'ana') renderAnalytics();
   }
 
   function render() {
-    const tbody = document.getElementById('rows');
-    tbody.innerHTML = "";
-    db.forEach((item, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input value="${item.name}" onchange="updateItem(${i}, 'name', this.value)" placeholder="Məs: Bolmart"></td>
-        <td>
-          <select onchange="updateItem(${i}, 'cat', this.value)">
-            ${categories.map(c => `<option value="${c.name}" ${item.cat===c.name?'selected':''}>${c.name}</option>`).join('')}
-          </select>
-        </td>
-        <td><input type="number" value="${item.amt}" onchange="updateItem(${i}, 'amt', this.value)"></td>
-        <td style="display:flex; gap:5px;">
-          <button class="btn-pay ${item.paid?'paid':''}" onclick="togglePaid(${i})">${item.paid?'✓':'Ödə'}</button>
-          <button onclick="deleteItem(${i})" style="background:none; border:none; color:var(--bad); cursor:pointer;">×</button>
-        </td>
+    const list = document.getElementById('expenseList');
+    list.innerHTML = "";
+    db[currentMonth].forEach((item, i) => {
+      list.innerHTML += `
+        <tr>
+          <td><b>${item.cat}</b></td>
+          <td>${item.amt} ₼</td>
+          <td style="font-size:11px; color:var(--muted)">${item.date}</td>
+          <td><button onclick="deleteItem(${i})" style="background:none; border:none; color:var(--red); cursor:pointer;">×</button></td>
+        </tr>
       `;
-      tbody.appendChild(tr);
     });
-    updateStats();
-    save();
+    updateSmartAlert();
+    if(!document.getElementById('section-ana').classList.contains('hidden')) renderAnalytics();
   }
 
   function renderAnalytics() {
-    const list = document.getElementById('categoryList');
-    list.innerHTML = "";
-    let total = db.reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
+    const body = document.getElementById('analyticsBody');
+    body.innerHTML = "";
 
-    categories.forEach(cat => {
-      let catSum = db.filter(i => i.cat === cat.name).reduce((s, i) => s + (parseFloat(i.amt) || 0), 0);
-      let perc = total > 0 ? (catSum / total * 100).toFixed(1) : 0;
+    Object.keys(defaultTargets).forEach(cat => {
+      const target = defaultTargets[cat];
+      const spent = db[currentMonth].filter(i => i.cat === cat).reduce((s, i) => s + i.amt, 0);
+      const diff = target - spent;
+      const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
+      
+      const statusColor = diff < 0 ? 'var(--red)' : 'var(--green)';
+      const barColor = diff < 0 ? 'var(--red)' : 'var(--yellow)';
 
-      list.innerHTML += `
-        <div class="cat-row">
-          <div class="cat-info" style="width:150px">
-            <div class="cat-dot" style="background:${cat.color}"></div>
-            <span>${cat.name}</span>
-          </div>
-          <div class="cat-bar-bg">
-            <div class="cat-bar-fill" style="width:${perc}%; background:${cat.color}"></div>
-          </div>
-          <div style="width:100px; text-align:right">
-            <b>${catSum.toFixed(2)} ₼</b><br>
-            <small style="color:var(--muted)">${perc}%</small>
+      body.innerHTML += `
+        <div class="ana-row">
+          <div style="font-size:13px"><b>${cat}</b></div>
+          <div style="color:var(--yellow)">${target} ₼</div>
+          <div style="font-weight:bold">${spent} ₼</div>
+          <div style="color:${statusColor}; font-weight:900">${diff > 0 ? '+'+diff : diff} ₼</div>
+          <div class="progress-bg">
+            <div class="progress-fill" style="width:${perc}%; background:${barColor}"></div>
           </div>
         </div>
       `;
     });
   }
 
-  document.getElementById('mainBudget').oninput = (e) => {
-    budget = e.target.value;
-    updateStats();
-    save();
-  };
+  function updateSmartAlert() {
+    const alert = document.getElementById('smartAlert');
+    let totalTarget = Object.values(defaultTargets).reduce((a, b) => a + b, 0);
+    let totalSpent = db[currentMonth].reduce((s, i) => s + i.amt, 0);
+    let diff = totalTarget - totalSpent;
 
-  document.getElementById('currentDate').innerText = new Date().toLocaleDateString('az-AZ', { day:'numeric', month:'long', year:'numeric' });
+    if (totalSpent === 0) {
+      alert.className = "status-alert status-good";
+      alert.innerText = "Yeni ay başladı! Hədəflərinə sadiq qal.";
+    } else if (diff < 0) {
+      alert.className = "status-alert status-danger";
+      alert.innerText = "DİQQƏT! Ümumi büdcəni " + Math.abs(diff) + " ₼ aşmısan. Xərcləri dayandır!";
+    } else if (diff < 200) {
+      alert.className = "status-alert status-warning";
+      alert.innerText = "Ehtiyatlı ol, büdcənin sonuna yaxınlaşırsan. Qalıq: " + diff + " ₼";
+    } else {
+      alert.className = "status-alert status-good";
+      alert.innerText = "Hər şey qaydasındadır. " + diff + " ₼ hələ də sərbəst büdcən var.";
+    }
+  }
 
-  render();
+  function exportToExcel() {
+    const data = db[currentMonth].map(i => ({
+      "Kateqoriya": i.cat,
+      "Məbləğ (₼)": i.amt,
+      "Tarix": i.date
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Xərclər");
+    XLSX.writeFile(workbook, `Hesabat_${currentMonth}.xlsx`);
+  }
+
+  init();
 </script>
 
 </body>
