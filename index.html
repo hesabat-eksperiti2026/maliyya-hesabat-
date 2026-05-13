@@ -3,11 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v17</title>
+  <title>Maaş Hesabatı v18 - Final Fix</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
@@ -45,7 +44,7 @@
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
     .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border: 1px dashed var(--border); border-radius: 4px; }
+    .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
     .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
@@ -117,6 +116,11 @@
   let db = {};
   let currentMonth = "";
 
+  // Firebase üçün təhlükəsiz key yaratmaq (Nöqtəni silir)
+  function safeKey(str) {
+    return str.replace(/\./g, '').trim();
+  }
+
   function setupMonthSelector() {
     const selector = document.getElementById('monthSelector');
     if(selector.options.length > 0) return;
@@ -180,18 +184,18 @@
   }
 
   function deleteCategory(cat) {
-    if (confirm(`"${cat}" kateqoriyasını və planını silmək istəyirsiniz?`)) {
-        db_fb.ref(`maliyya_v12/${currentMonth}/targets`).child(cat).remove();
+    if (confirm(`"${cat}" silinsin?`)) {
+        db_fb.ref(`maliyya_v12/${currentMonth}/targets`).child(safeKey(cat)).remove();
         let cCats = db[currentMonth].customCats || [];
         const newCats = cCats.filter(c => c !== cat);
         db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
     }
   }
 
-  // Burada kateqoriya adını təhlükəsiz göndərmək üçün child(cat) metodundan istifadə etdik
   function updateTarget(cat, val) {
     const amount = parseFloat(val) || 0;
-    db_fb.ref(`maliyya_v12/${currentMonth}/targets`).child(cat).set(amount);
+    // Firebase-də nöqtə problem yaratdığı üçün safeKey istifadə edirik
+    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(amount);
   }
 
   function switchTab(t) {
@@ -204,6 +208,7 @@
   function render() {
     const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
     const expenses = data.expenses || [];
+    const targets = data.targets || {};
     
     document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
       <tr>
@@ -220,7 +225,8 @@
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
 
     anaTable.innerHTML = activeCats.map(cat => {
-      const target = (data.targets || {})[cat] || 0;
+      // Nöqtəsiz key ilə datanı oxuyuruq
+      const target = targets[safeKey(cat)] || 0;
       totalTargetSum += target;
 
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
@@ -230,20 +236,17 @@
       const isCustom = !baseCategories.includes(cat);
       
       if (target > 0) {
-          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq xərcləmisən!</span>`);
-          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət etmisən.</span>`);
+          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq!</span>`);
+          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət.</span>`);
       }
-
-      // Input-da onChange hadisəsinə kateqoriya adını dırnaq içində düzgün ötürmək üçün escape etdik
-      const catEscaped = cat.replace(/'/g, "\\'");
 
       return `<div class="ana-row">
           <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
-          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${catEscaped}', this.value)"></div>
+          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
           <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
           <div style="text-align:right">
-            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${catEscaped}')">🗑️</button>` : ''}
+            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
           </div>
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
         </div>`;
@@ -264,11 +267,11 @@
     } else if (balance < 0) { 
         statusMsg.innerText = "BUDCƏ AŞILDI! (" + spentPerc.toFixed(0) + "%)"; statusMsg.className = "alert alert-warn"; 
     } else if (spentPerc > 85) {
-        statusMsg.innerText = "KRİTİK VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
+        statusMsg.innerText = "KRİTİK: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
     } else if (spentPerc > 50) {
-        statusMsg.innerText = "ORTA VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
+        statusMsg.innerText = "ORTA: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "VƏZİYYƏT YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
+        statusMsg.innerText = "YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     }
 
     document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
