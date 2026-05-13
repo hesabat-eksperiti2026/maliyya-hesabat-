@@ -3,14 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v13</title>
+  <title>Maaş Hesabatı v14</title>
   
-  <!-- Firebase Kitabxanaları -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
@@ -25,8 +22,8 @@
     .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
     .select-wrapper { position: relative; width: fit-content; }
     .select-wrapper::after { content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
-    select { appearance: none; padding-right: 30px !important; background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; }
-    .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; }
+    select { appearance: none; padding-right: 30px !important; background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; outline: none; }
+    .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; transition: 0.3s ease; }
     .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
     .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
@@ -110,7 +107,6 @@
   firebase.initializeApp(firebaseConfig);
   const db_fb = firebase.database();
 
-  // "Gündəlik bazarlıq" əlavə olundu
   const baseCategories = ["Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", "Baxım", "Həkim", "Gündəlik bazarlıq", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"];
   const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
   
@@ -137,8 +133,6 @@
       db = snapshot.val() || {};
       if (!db[currentMonth]) db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
       document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
-      document.getElementById('statusMsg').innerText = "✅ Firebase Aktif";
-      document.getElementById('statusMsg').className = "alert alert-info";
       render();
     });
   }
@@ -178,7 +172,6 @@
     toggleOtherInput();
   }
 
-  // Bazadan tam silinmə funksiyası
   function deleteExp(idx) {
     let exps = db[currentMonth].expenses;
     exps.splice(idx, 1);
@@ -198,10 +191,9 @@
 
   function render() {
     const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
-    const table = document.getElementById('expenseTable');
     const expenses = data.expenses || [];
     
-    table.innerHTML = expenses.map((item, i) => `
+    document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
       <tr>
         <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
         <td style="font-weight:700">${item.amt} ₼</td>
@@ -222,8 +214,8 @@
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
       
       if (target > 0) {
-          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: -${Math.abs(diff.toFixed(0))}₼ artıq.</span>`);
-          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: ${diff.toFixed(0)}₼ qənaət.</span>`);
+          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq xərcləmisən!</span>`);
+          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət etmisən.</span>`);
       }
 
       return `<div class="ana-row">
@@ -244,9 +236,22 @@
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
     const statusMsg = document.getElementById('statusMsg');
-    if (salary === 0) { statusMsg.innerText = "Maaş daxil edin."; statusMsg.className = "alert alert-neutral"; }
-    else if (balance < 0) { statusMsg.innerText = "Büdcə Aşıldı!"; statusMsg.className = "alert alert-warn"; }
-    else { statusMsg.innerText = "Vəziyyət: " + spentPerc.toFixed(0) + "% xərclənib."; statusMsg.className = "alert alert-info"; }
+    if (salary === 0) { 
+        statusMsg.innerText = "Maaş daxil edin."; 
+        statusMsg.className = "alert alert-neutral"; 
+    } else if (balance < 0) { 
+        statusMsg.innerText = "BUDCƏ AŞILDI! (" + spentPerc.toFixed(0) + "%)"; 
+        statusMsg.className = "alert alert-warn"; 
+    } else if (spentPerc > 85) {
+        statusMsg.innerText = "KRİTİK VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!";
+        statusMsg.className = "alert alert-warn";
+    } else if (spentPerc > 50) {
+        statusMsg.innerText = "ORTA VƏZİYYƏT: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
+        statusMsg.className = "alert alert-info";
+    } else {
+        statusMsg.innerText = "VƏZİYYƏT YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib.";
+        statusMsg.className = "alert alert-info";
+    }
 
     document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
   }
