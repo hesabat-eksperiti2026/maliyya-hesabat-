@@ -3,2090 +3,346 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Xərclərim</title>
+  <title>Maliyyə Hesabatı - Pro Dashboard</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    :root{
+    :root {
       --bg: #0c0f14;
       --stroke: rgba(255,255,255,.12);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.65);
-
       --yellow: #ff9f1a;
-      --yellow2:#ff7a00;
-
-      --good:#2ee59d;
-      --bad:#ff6b6b;
-
+      --yellow2: #ff7a00;
+      --good: #2ee59d;
+      --bad: #ff6b6b;
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius: 18px;
       --pillRadius: 14px;
     }
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
       color: var(--text);
-      background:
+      background: 
         radial-gradient(900px 520px at 20% 10%, rgba(255,159,26,.16), transparent 60%),
         radial-gradient(900px 520px at 82% 18%, rgba(46,229,157,.10), transparent 60%),
-        radial-gradient(900px 520px at 60% 92%, rgba(255,107,107,.10), transparent 55%),
         var(--bg);
-      min-height:100vh;
-      padding: 28px 16px 44px;
+      min-height: 100vh;
+      padding: 20px;
     }
 
-    .wrap{ max-width: 1080px; margin: 0 auto; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
 
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin-bottom: 12px;
+    /* Top Panel */
+    .header-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
     }
 
-    .title{ display:flex; flex-direction:column; gap:6px; min-width: 240px; }
-    .title h1{ margin:0; font-size: 20px; letter-spacing:.2px; }
-    .title p{ margin:0; color: var(--muted); font-size: 13px; line-height: 1.35; }
-
-    .pill{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
+    .pill {
+      background: rgba(255,255,255,0.05);
       border: 1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      padding: 12px 20px;
       border-radius: var(--pillRadius);
-      box-shadow: 0 10px 30px rgba(0,0,0,.18);
-      user-select:none;
-      white-space:nowrap;
+      backdrop-filter: blur(10px);
     }
-    .pill label{ font-size: 12px; color: var(--muted); }
-    .pill input{
-      width: 140px;
-      font: inherit;
-      color: var(--text);
-      background: rgba(0,0,0,.25);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 12px;
-      padding: 8px 10px;
-      outline: none;
-      text-align:right;
+
+    .pill input {
+      background: transparent;
+      border: none;
+      color: var(--yellow);
       font-weight: 900;
-    }
-    .pill input:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.16);
-    }
-
-    .iconBtn{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      flex: 0 0 auto;
-    }
-    .iconBtn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,159,26,.45);
-    }
-    .iconBtn svg{ width: 18px; height: 18px; opacity:.95; }
-
-    /* Calendar pill */
-    .calPill{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      border-radius: var(--pillRadius);
-      box-shadow: 0 10px 30px rgba(0,0,0,.18);
-      min-width: 360px;
-      justify-content:space-between;
-    }
-    .calLeft{ display:flex; align-items:center; gap: 10px; min-width: 0; }
-    .calIcon{
-      width: 34px; height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      flex: 0 0 auto;
-    }
-    .calIcon svg{ width: 18px; height: 18px; opacity:.95; }
-    .calDate b{ font-size: 13px; letter-spacing: .25px; }
-    .calRight{
-      font-size: 12px;
-      color: rgba(255,255,255,.78);
-      padding-left: 10px;
-      border-left: 1px solid rgba(255,255,255,.12);
-      margin-left: 8px;
-      white-space:nowrap;
-      display:flex;
-      gap:6px;
-      align-items:baseline;
-    }
-    .calRight b{ color: rgba(255,159,26,.95); font-variant-numeric: tabular-nums; }
-
-    /* Filters */
-    .filtersBar{
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-      margin-bottom: 14px;
-    }
-    .filterPill{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      border-radius: var(--pillRadius);
-      box-shadow: 0 10px 30px rgba(0,0,0,.16);
-    }
-    .filterPill label{
-      color: rgba(255,255,255,.70);
-      font-size: 12px;
-      white-space:nowrap;
-    }
-    .searchInput{
-      width: 260px;
-      font: inherit;
-      font-size: 12px;
-      color: var(--text);
-      background: rgba(0,0,0,.25);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 12px;
-      padding: 9px 12px;
-      outline:none;
-    }
-    .searchInput:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.12);
-    }
-    .select{
-      font: inherit;
-      font-size: 12px;
-      color: #fff;
-      background: #0a0f1d;
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 12px;
-      padding: 9px 12px;
+      font-size: 18px;
+      width: 100px;
       outline: none;
-      min-width: 220px;
-    }
-    .select:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.12);
-    }
-    .select option{ background: #0a0f1d; color: #fff; }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.35fr .65fr;
-      gap: 14px;
-    }
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      .pill{ width:100%; justify-content:space-between; }
-      .pill input{ width: 170px; }
-      .calPill{ width:100%; min-width: unset; }
-      .filterPill{ width:100%; justify-content:space-between; }
-      .searchInput{ width: 100%; }
-      .select{ width: 100%; min-width: unset; }
+      text-align: right;
     }
 
-    .card{
+    /* Grid Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 850px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: rgba(255,255,255,0.03);
       border: 1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .cardHeader{
-      padding: 14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      background:
-        linear-gradient(90deg, rgba(255,159,26,.16), rgba(255,159,26,0)),
-        rgba(255,255,255,.03);
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .cardHeader .h{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.3px;
+      overflow: hidden;
     }
 
-    table{ width:100%; border-collapse: collapse; }
-    thead th{
-      text-align:left;
-      font-size: 12px;
-      letter-spacing:.35px;
-      color: rgba(0,0,0,.90);
-      background: linear-gradient(180deg, var(--yellow), var(--yellow2));
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(0,0,0,.18);
+    .card-header {
+      padding: 15px 20px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--stroke);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    thead th:last-child{ text-align:right; }
 
-    tbody td{
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      font-size: 13px;
-      vertical-align: top;
+    /* Table Styles */
+    table { width: 100%; border-collapse: collapse; }
+    th { 
+      background: var(--yellow); 
+      color: #000; 
+      font-size: 12px; 
+      text-transform: uppercase; 
+      padding: 12px;
+      text-align: left;
     }
-    tbody tr{
-      background: rgba(0,0,0,.10);
-      transition: transform .12s ease, background .12s ease, opacity .12s ease;
-    }
-    tbody tr:hover{
-      background: rgba(255,255,255,.06);
-      transform: translateY(-1px);
-    }
-    tbody tr[hidden]{ display:none !important; }
+    td { padding: 12px; border-bottom: 1px solid var(--stroke); }
 
-    .sourceCell{ display:flex; align-items:flex-start; gap:10px; min-width: 280px; }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: rgba(255,255,255,.35);
-      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
-      flex: 0 0 auto;
-      margin-top: 12px;
-      transition: background .12s ease, box-shadow .12s ease;
-    }
-    .stack{ display:flex; flex-direction:column; gap: 8px; min-width: 0; width: 100%; }
-    .titleRow{ display:flex; align-items:center; gap: 10px; width: 100%; }
-
-    .srcInput{
+    input.table-input {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--stroke);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
       width: 100%;
-      max-width: 560px;
-      font: inherit;
-      font-weight: 900;
-      font-style: italic;
-      color: rgba(255,255,255,.92);
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 12px;
-      padding: 9px 10px;
       outline: none;
-      min-width: 0;
-    }
-    .srcInput::placeholder{
-      color: rgba(255,255,255,.55);
-      font-weight: 900;
-      font-style: italic;
-    }
-    .srcInput:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.14);
     }
 
-    .noteInput{
-      font: inherit;
-      font-size: 12px;
-      color: var(--text);
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 12px;
-      padding: 8px 10px;
-      outline: none;
-      flex: 1 1 220px;
-    }
-    .noteInput:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.12);
-    }
+    .heat-high { border-left: 4px solid var(--bad); }
+    .heat-low { border-left: 4px solid var(--good); }
 
-    .metaRow{ display:flex; align-items:center; gap: 8px; flex-wrap:wrap; }
-
-    .amountCell{
-      text-align:right;
-      white-space:nowrap;
-      width: 420px;
-      padding-top: 14px;
-    }
-    .amountWrap{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      justify-content:flex-end;
-    }
-
-    .amtInput{
-      width: 110px;
-      text-align:right;
-      padding: 9px 10px;
+    /* Buttons */
+    button {
+      padding: 8px 16px;
       border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.25);
-      color: var(--text);
-      outline: none;
-      font: inherit;
-      font-weight: 900;
-      transition: box-shadow .12s ease, border-color .12s ease, background .12s ease;
-    }
-    .amtInput:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.14);
-      background: rgba(0,0,0,.30);
-    }
-
-    .recWrap{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 0 8px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      cursor:pointer;
-      user-select:none;
-    }
-    .recWrap input{
-      width: 16px;
-      height: 16px;
-      accent-color: var(--yellow);
-      cursor:pointer;
-    }
-    .recWrap span{
-      font-size: 11px;
-      color: rgba(255,255,255,.78);
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-
-    .payBtn{
-      height: 34px;
-      padding: 0 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.90);
-      font: inherit;
-      font-size: 12px;
-      font-weight: 900;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-    }
-    .payBtn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(46,229,157,.35);
-    }
-    .payBtn.paid{
-      border-color: rgba(46,229,157,.40);
-      background: rgba(46,229,157,.10);
-      color: rgba(46,229,157,.95);
-    }
-
-    tr.paidRow{ opacity: .72; }
-    tr.paidRow .dot{
-      background: rgba(46,229,157,.95);
-      box-shadow: 0 0 0 6px rgba(46,229,157,.16);
-    }
-    tr.paidRow .srcInput,
-    tr.paidRow .noteInput{
-      text-decoration: line-through;
-      color: rgba(255,255,255,.62);
-    }
-
-    .delBtn{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-    }
-    .delBtn:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,107,107,.35);
-    }
-    .delBtn svg{ width: 18px; height: 18px; opacity:.95; }
-
-    .heat-low .amtInput{ background: rgba(46,229,157,.10); border-color: rgba(46,229,157,.18); }
-    .heat-mid .amtInput{ background: rgba(255,159,26,.12); border-color: rgba(255,159,26,.22); }
-    .heat-high .amtInput{ background: rgba(255,107,107,.12); border-color: rgba(255,107,107,.22); }
-
-    .footer{
-      padding: 14px 16px;
-      display:flex;
-      flex-direction:column;
-      gap: 12px;
-      background: rgba(0,0,0,.14);
-    }
-
-    .kpis{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 560px){
-      .kpis{ grid-template-columns: 1fr; }
-    }
-
-    .kpi{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      border-radius: 16px;
-      padding: 12px 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .kpi .label{
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: .25px;
-    }
-    .kpi .value{
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: .3px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .progressBox{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      border-radius: 16px;
-      padding: 12px 12px 14px;
-    }
-    .progressTop{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .progressTop .small{
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .bar{
-      height: 10px;
-      background: rgba(0,0,0,.25);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 999px;
-      overflow:hidden;
-    }
-    .bar > i{
-      display:block;
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(46,229,157,.95), rgba(255,159,26,.95), rgba(255,107,107,.95));
-      border-radius: 999px;
-      transition: width .18s ease;
-    }
-
-    .rightCard{ padding: 14px 14px 16px; }
-    .sideTitle{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .sideTitle strong{ font-size: 13px; letter-spacing:.25px; }
-
-    .panel{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      border-radius: 16px;
-      padding: 12px 12px;
-      margin-top: 12px;
-    }
-    .panel h3{
-      margin: 0 0 10px 0;
-      font-size: 12px;
-      letter-spacing:.25px;
-      color: rgba(255,255,255,.85);
-    }
-
-    .fieldRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .fieldRow label{ color: var(--muted); font-size: 12px; }
-    .fieldRow input{
-      width: 170px;
-      font: inherit;
-      color: var(--text);
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 12px;
-      padding: 9px 10px;
-      outline: none;
-      text-align:right;
-      font-weight: 900;
-    }
-    .fieldRow input:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.12);
-    }
-
-    .btns{
-      display:flex;
-      gap: 8px;
-      flex-wrap:wrap;
-      margin-top: 12px;
-    }
-    button{
-      appearance:none;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.07);
-      color: var(--text);
-      padding: 9px 10px;
-      border-radius: 12px;
-      font: inherit;
-      font-size: 12px;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-    }
-    button:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,159,26,.40);
-    }
-    button:active{ transform: translateY(0); }
-
-    .fileInput{ display:none; }
-
-    .miniList{
-      margin-top: 12px;
-      border-top: 1px solid rgba(255,255,255,.10);
-      padding-top: 12px;
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-    }
-    .miniRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.12);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .miniRow .left span{
-      font-size: 12px;
-      color: var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 220px;
-    }
-    .miniRow .right{
-      font-weight:900;
-      font-size: 12px;
-      white-space:nowrap;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .sumList{
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .sumRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.12);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .sumRow .l{
-      font-size: 12px;
-      color: rgba(255,255,255,.78);
-      font-weight: 800;
-    }
-    .sumRow .r{
-      font-size: 12px;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-      color: rgba(255,255,255,.90);
-    }
-
-    .recList{
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .recRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.12);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .recRow .left{
-      display:flex;
-      flex-direction:column;
-      gap: 2px;
-      min-width: 0;
-    }
-    .recRow .left b{
-      font-size: 12px;
-      font-weight: 900;
-      color: rgba(255,255,255,.90);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 240px;
-    }
-    .recRow .left span{
-      font-size: 11px;
-      color: rgba(255,255,255,.60);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 240px;
-    }
-    .recRow .right{
-      display:flex;
-      align-items:center;
-      gap: 8px;
-      white-space:nowrap;
-    }
-    .recAmt{
-      font-size: 12px;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-      color: rgba(255,255,255,.90);
-    }
-    .miniDel{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      flex: 0 0 auto;
-    }
-    .miniDel:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,107,107,.35);
-    }
-    .miniDel svg{ width: 18px; height: 18px; opacity:.95; }
-
-    .neg{ color: var(--bad); }
-    .pos{ color: var(--good); }
-
-    /* ✅ Xərclər altına actions row */
-    .todoCardFooter{
-      padding: 14px 16px 16px;
-      background: rgba(0,0,0,.14);
-      border-top: 1px solid rgba(255,255,255,.10);
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-    }
-    .underActions{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .underActions .left{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .underActions strong{
-      font-size: 13px;
-      letter-spacing:.25px;
-    }
-
-    /* To-do Modal */
-    .modalOverlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 50;
-    }
-    .modalOverlay.open{ display:flex; }
-
-    .modal{
-      width: min(720px, 100%);
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: #0b0e14;
-      box-shadow: 0 24px 80px rgba(0,0,0,.55);
-      overflow:hidden;
-    }
-    .modalHeader{
-      padding: 14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      background: linear-gradient(90deg, rgba(255,159,26,.12), rgba(255,159,26,0));
-    }
-    .modalHeader strong{ font-size: 13px; letter-spacing:.25px; }
-    .modalClose{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-    }
-    .modalClose:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,107,107,.35);
-    }
-    .modalClose svg{ width: 18px; height: 18px; opacity:.95; }
-
-    .modalBody{ padding: 14px 16px 16px; }
-
-    .todoTop{
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-bottom: 12px;
-    }
-    .todoInput{
-      flex: 1 1 260px;
-      font: inherit;
-      font-size: 12px;
-      color: var(--text);
-      background: rgba(0,0,0,.25);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 12px;
-      padding: 10px 12px;
-      outline:none;
-    }
-    .todoInput:focus{
-      border-color: rgba(255,159,26,.60);
-      box-shadow: 0 0 0 4px rgba(255,159,26,.12);
-    }
-
-    .todoList{
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .todoRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.10);
-    }
-    .todoLeft{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      min-width:0;
-    }
-    .todoLeft input[type="checkbox"]{
-      width: 18px; height: 18px;
-      accent-color: var(--yellow);
-    }
-    .todoText{
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255,255,255,.90);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 520px;
-    }
-    .todoDone .todoText{
-      color: rgba(255,255,255,.55);
-      text-decoration: line-through;
+      border: none;
+      cursor: pointer;
       font-weight: 600;
+      transition: 0.2s;
     }
-    .todoDel{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      flex: 0 0 auto;
-    }
-    .todoDel:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,107,107,.35);
-    }
-    .todoDel svg{ width: 18px; height: 18px; opacity:.95; }
+    .btn-add { background: var(--yellow); color: #000; }
+    .btn-pay { background: rgba(255,255,255,0.1); color: #fff; }
+    .btn-pay.done { background: var(--good); color: #000; }
+    .btn-del { background: transparent; color: var(--bad); font-size: 18px; }
 
-    .subtle{
-      color: rgba(255,255,255,.58);
-      font-size: 12px;
-      line-height: 1.35;
-      margin-top: 10px;
+    /* Footer Stats */
+    .card-footer { padding: 20px; background: rgba(0,0,0,0.2); }
+    .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .stat-val { font-weight: 900; font-size: 20px; }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
     }
+    .progress-fill { height: 100%; background: var(--yellow); transition: 0.3s; }
+
   </style>
 </head>
-
 <body>
-  <div class="wrap">
 
-    <div class="topbar">
-      <div class="title">
-        <h1>Xərclərim</h1>
-        <p>Ay seç, xərcləri yaz, filtr et və istənilən ayı sonra yenə aça bil.</p>
-      </div>
-
-      <div class="calPill" title="Tarix + İl sonuna geri sayım">
-        <div class="calLeft">
-          <div class="calIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M7 3v3M17 3v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M4 9h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M6 6h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="calDate">
-            <b id="todayText">—</b>
-          </div>
-        </div>
-        <div class="calRight">
-          <span>İlin sonuna:</span>
-          <b id="countdownText">—</b>
-        </div>
-      </div>
-
-      <div class="pill" title="Büdcə (QALIQ = Büdcə + Overtime − Total)">
-        <label for="budgetInput">Büdcə</label>
-
-        <input id="budgetInput" type="text" inputmode="numeric" autocomplete="off" value="0" />
-
-        <button class="iconBtn" id="btnToggleBudget" type="button" title="Büdcəni gizlət / göstər">
-          <svg id="eyeOpen" viewBox="0 0 24 24" fill="none">
-            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2"/>
-          </svg>
-          <svg id="eyeOff" viewBox="0 0 24 24" fill="none" style="display:none">
-            <path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M2 12s3.5-7 10-7c2 0 3.7.6 5.1 1.5M22 12s-3.5 7-10 7c-2 0-3.7-.6-5.1-1.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-            <path d="M10.5 10.5a3 3 0 0 0 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
+<div class="wrap">
+  <div class="header-box">
+    <div>
+      <h1 style="margin:0; font-size:24px;">Maliyyə Paneli 2026</h1>
+      <p style="color:var(--muted); margin:5px 0 0;">Xərclərinizi izləyin və idarə edin</p>
     </div>
-
-    <div class="filtersBar">
-      <div class="filterPill" title="Ay seç (Yanvar 2026-dan başlayır)">
-        <label for="monthSelect">Ay</label>
-        <select id="monthSelect" class="select"></select>
-      </div>
-
-      <div class="filterPill">
-        <label for="searchInput">Axtarış</label>
-        <input id="searchInput" class="searchInput" type="text" placeholder="Mənbə / qeyd üzrə axtar..." />
-      </div>
-
-      <div class="filterPill">
-        <label for="categoryFilter">Kateqoriya</label>
-        <select id="categoryFilter" class="select"></select>
-      </div>
-
-      <div class="filterPill">
-        <button id="btnResetFilters" type="button">Filterləri sıfırla</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- Main table -->
-      <div class="card">
-        <div class="cardHeader">
-          <div class="h">
-            <span style="width:10px;height:10px;border-radius:50%;background:rgba(255,159,26,.95);box-shadow:0 0 0 6px rgba(255,159,26,.14)"></span>
-            Cədvəl
-          </div>
-          <span style="color:rgba(255,255,255,.65);font-size:12px;">Avtomatik yadda saxlanır</span>
+    
+    <div style="display:flex; gap:10px;">
+        <div class="pill">
+            <span style="font-size:12px; color:var(--muted)">AY:</span>
+            <select id="monthSelect" style="background:none; border:none; color:#fff; font-weight:700; outline:none; cursor:pointer;">
+                <option value="Yanvar_2026">Yanvar 2026</option>
+                <option value="Fevral_2026">Fevral 2026</option>
+                <option value="Mart_2026">Mart 2026</option>
+                <option value="Aprel_2026">Aprel 2026</option>
+                <option value="May_2026">May 2026</option>
+            </select>
         </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th style="width:72%;">MƏNBƏ</th>
-              <th style="width:28%;">XƏRCLƏR</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-
-        <div class="footer">
-          <div class="kpis">
-            <div class="kpi">
-              <div><div class="label">TOTAL</div></div>
-              <div class="value" id="totalValue">0</div>
-            </div>
-
-            <div class="kpi">
-              <div><div class="label">QALIQ</div></div>
-              <div class="value" id="balanceValue">0</div>
-            </div>
-          </div>
-
-          <div class="progressBox">
-            <div class="progressTop">
-              <div class="small">Xərclənən faiz (Büdcəyə görə)</div>
-              <div class="small" id="spentPct">0%</div>
-            </div>
-            <div class="bar"><i id="barFill"></i></div>
-          </div>
+        <div class="pill">
+            <span style="font-size:12px; color:var(--muted)">BÜDCƏ:</span>
+            <input type="number" id="budgetInput" value="2000"> <span>₼</span>
         </div>
-
-        <!-- ✅ + Xərc əlavə et + Edəcəklər — Xərclər-in aşağısında -->
-        <div class="todoCardFooter">
-          <div class="underActions">
-            <div class="left">
-              <button id="btnAddRow" type="button">+ Xərc əlavə et</button>
-              <strong>Edəcəklər siyahısı</strong>
-            </div>
-            <button id="btnTodoOpen" type="button">Aç</button>
-          </div>
-          <div class="subtle" style="margin-top:0;">
-            “+ Xərc əlavə et” ilə yeni sətir yaradırsan. “Aç” ilə ediləcəkləri idarə edirsən.
-          </div>
-        </div>
-      </div>
-
-      <!-- Side panel -->
-      <div class="card rightCard">
-        <div class="sideTitle">
-          <strong>Əlavələr</strong>
-          <span style="font-size:12px;color:rgba(255,255,255,.65)">Backup + Sil</span>
-        </div>
-
-        <div class="panel">
-          <h3>Overtime (əl ilə)</h3>
-          <div class="fieldRow">
-            <label for="overtimeManual">Overtime məbləği</label>
-            <input id="overtimeManual" type="text" inputmode="numeric" autocomplete="off" value="0" />
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>İllik yığım (ümumi)</h3>
-          <div class="miniRow" style="margin-top:8px;">
-            <div class="left"><span>Yığılan məbləğ</span></div>
-            <div class="right" id="annualTotal">0</div>
-          </div>
-          <div class="subtle" style="margin-top:10px;">
-            “İllik yığım” xərclərini cədvəldə <b>kateqoriya kimi</b> əlavə edirsən.
-            Buradakı rəqəm isə <b>bütün aylar üzrə</b> yığılan ümumi məbləğdir.
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>Kateqoriya üzrə cəmlər (bu ay)</h3>
-          <div id="categorySums" class="sumList"></div>
-        </div>
-
-        <div class="panel">
-          <h3>Təkrarlanan xərclər</h3>
-          <div class="subtle" style="margin-top:0;">
-            Sətirdə <b>“Hər ay”</b> işarələsən, növbəti aylarda avtomatik əlavə olunacaq.
-          </div>
-          <div id="recurringList" class="recList"></div>
-        </div>
-
-        <div class="btns">
-          <button id="btnBackupDownload" type="button">Backup yüklə</button>
-          <button id="btnBackupRestore" type="button">Backup bərpa et</button>
-          <input id="fileRestore" class="fileInput" type="file" accept="application/json,.json" />
-        </div>
-
-        <div class="btns">
-          <button id="btnClearAll" type="button">Hamısını sil</button>
-        </div>
-
-        <div class="miniList" aria-label="Xülasə">
-          <div class="miniRow">
-            <div class="left"><span>Ən böyük xərc</span></div>
-            <div class="right" id="maxExpense">—</div>
-          </div>
-          <div class="miniRow">
-            <div class="left"><span>Status</span></div>
-            <div class="right" id="statusText">—</div>
-          </div>
-        </div>
-
-        <div class="subtle">
-          Ay dəyişəndə həmin ayın məlumatları ayrıca yadda saxlanır. Sonra istənilən ayı seçib baxa bilərsən.
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- To-do Modal -->
-  <div class="modalOverlay" id="todoOverlay" role="dialog" aria-modal="true" aria-label="Ediləcəklər siyahısı">
-    <div class="modal">
-      <div class="modalHeader">
-        <strong>Ediləcəklər siyahısı</strong>
-        <button class="modalClose" id="btnTodoClose" type="button" title="Bağla">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-header">
+        <strong>Xərclər Siyahısı</strong>
+        <button class="btn-add" onclick="addRow()">+ Yeni Sətir</button>
       </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th style="width:50%">Mənbə / Kateqoriya</th>
+            <th style="width:25%">Məbləğ</th>
+            <th style="width:25%">Status</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable">
+          <!-- Sətirlər JS ilə bura gələcək -->
+        </tbody>
+      </table>
 
-      <div class="modalBody">
-        <div class="todoTop">
-          <input id="todoInput" class="todoInput" type="text" placeholder="Məs: Marketdən su al, montajı bitir..." />
-          <button id="btnTodoAdd" type="button">+ Əlavə et</button>
-          <button id="btnTodoClearAll" type="button">Hamısını sil</button>
+      <div class="card-footer">
+        <div class="stat-row">
+          <span>Ümumi Xərc:</span>
+          <span class="stat-val" id="totalExp">0 ₼</span>
         </div>
-
-        <div id="todoList" class="todoList"></div>
-
-        <div class="subtle">
-          Qutunu işarələ → “Edildi”. İstəsən sətiri ayrıca da silə bilərsən.
+        <div class="stat-row">
+          <span>Qalıq Balans:</span>
+          <span class="stat-val" id="balanceVal" style="color:var(--good)">0 ₼</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="bar"></div>
         </div>
       </div>
     </div>
+
+    <div class="card" style="padding:20px;">
+      <h3 style="margin-top:0">İllik Yığım Hesabatı</h3>
+      <div id="annualSummary">
+         <!-- Kateqoriya cəmləri -->
+      </div>
+      <hr style="border:0; border-top:1px solid var(--stroke); margin:20px 0;">
+      <button onclick="exportData()" style="width:100%; margin-bottom:10px;">Ehtiyat Nüsxə Yüklə (JSON)</button>
+      <button onclick="clearAll()" style="width:100%; background:rgba(255,107,107,0.1); color:var(--bad)">Bütün Datanı Sil</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    const STORAGE_PREFIX = "xerc_dashboard_month_";
-    const STORAGE_UI_KEY = "xerc_dashboard_ui_v1";
-    const STORAGE_TODO_KEY = "xerc_dashboard_todos_v1";
-    const STORAGE_RECUR_KEY = "xerc_dashboard_recurring_v1";
+<script>
+  let db = JSON.parse(localStorage.getItem('my_finances_2026')) || {};
+  let currentMonth = "Yanvar_2026";
 
-    const DEFAULT_TITLE = "Xərc əlavə et";
-    const ANNUAL_CATEGORY = "İllik yığım";
-    const CATEGORIES = ["Kredit","Kommunal","TV","İnternet","Mobil operatorlar","Borc","İcarə", ANNUAL_CATEGORY, "Digər"];
-    const MONTHS_AZ = ["yanvar","fevral","mart","aprel","may","iyun","iyul","avqust","sentyabr","oktyabr","noyabr","dekabr"];
+  const monthSelect = document.getElementById('monthSelect');
+  const budgetInput = document.getElementById('budgetInput');
 
-    const START_YEAR = 2026;
-    const START_MONTH = 0;
-    const FUTURE_YEARS = 12;
-
-    function escapeHTML(str){
-      return String(str)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
+  function init() {
+    currentMonth = monthSelect.value;
+    if(!db[currentMonth]) {
+      db[currentMonth] = { budget: 2000, items: [] };
     }
-    function safeNum(v){
-      const n = parseFloat(String(v).replace(/[^\d.-]/g,''));
-      return Number.isFinite(n) ? n : 0;
-    }
-    function fmt(n){
-      const x = Number.isFinite(n) ? n : 0;
-      return x.toLocaleString('az-AZ', { maximumFractionDigits: 0 });
-    }
-    function clamp(num, min, max){ return Math.max(min, Math.min(max, num)); }
-    function pad2(n){ return String(n).padStart(2,'0'); }
-    function monthKeyFromDate(y, m){ return `${y}-${pad2(m+1)}`; }
-    function formatTodayAZ(d){
-      const day = pad2(d.getDate());
-      const month = MONTHS_AZ[d.getMonth()];
-      const year = d.getFullYear();
-      return `${day} ${month} ${year}`;
-    }
-    function endOfYearCountdownText(now){
-      const end = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
-      const diff = end.getTime() - now.getTime();
-      const s = Math.max(0, Math.floor(diff / 1000));
-      const days = Math.floor(s / 86400);
-      const hours = Math.floor((s % 86400) / 3600);
-      const mins = Math.floor((s % 3600) / 60);
-      const secs = s % 60;
-      return `${days}g ${pad2(hours)}s ${pad2(mins)}d ${pad2(secs)}sn`;
-    }
+    budgetInput.value = db[currentMonth].budget;
+    render();
+  }
 
-    function uid(){
-      return (crypto && crypto.randomUUID) ? crypto.randomUUID() : (String(Date.now()) + "-" + Math.random());
-    }
+  function render() {
+    const container = document.getElementById('expenseTable');
+    container.innerHTML = "";
+    let total = 0;
 
-    function wireAutoClearZero(input){
-      input.addEventListener('focus', () => {
-        const v = String(input.value ?? '').trim();
-        if (v === "0" || v === "0.0" || v === "0,0") input.value = "";
-      });
-      input.addEventListener('blur', () => {
-        const v = String(input.value ?? '').trim();
-        if (!v) input.value = "0";
-      });
-    }
-    function normalizeIntText(inputEl){
-      const raw = String(inputEl.value ?? '');
-      const cleaned = raw.replace(/[^\d]/g,'');
-      inputEl.value = cleaned ? String(parseInt(cleaned,10)) : "";
-    }
+    db[currentMonth].items.forEach((item, index) => {
+      const val = parseFloat(item.amount) || 0;
+      total += val;
 
-    function categoryOptionsHTML(selected){
-      const first = `<option value="">Hamısı</option>`;
-      const opts = CATEGORIES.map(c => {
-        const s = (c === selected) ? 'selected' : '';
-        return `<option value="${escapeHTML(c)}" ${s}>${escapeHTML(c)}</option>`;
-      }).join('');
-      return first + opts;
-    }
-    function rowCategoryOptionsHTML(selected){
-      const first = `<option value="" ${selected ? '' : 'selected'} disabled>Kateqoriya seç</option>`;
-      const opts = CATEGORIES.map(c => {
-        const s = (c === selected) ? 'selected' : '';
-        return `<option value="${escapeHTML(c)}" ${s}>${escapeHTML(c)}</option>`;
-      }).join('');
-      return first + opts;
-    }
+      const tr = document.createElement('tr');
+      if(val > 500) tr.className = "heat-high";
+      if(val > 0 && val < 50) tr.className = "heat-low";
 
-    const todayText = document.getElementById('todayText');
-    const countdownText = document.getElementById('countdownText');
-
-    const budgetInput = document.getElementById('budgetInput');
-    const btnToggleBudget = document.getElementById('btnToggleBudget');
-    const eyeOpen = document.getElementById('eyeOpen');
-    const eyeOff = document.getElementById('eyeOff');
-
-    const monthSelect = document.getElementById('monthSelect');
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const btnResetFilters = document.getElementById('btnResetFilters');
-
-    const overtimeManual = document.getElementById('overtimeManual');
-
-    const tbody = document.getElementById('rows');
-    const totalValue = document.getElementById('totalValue');
-    const balanceValue = document.getElementById('balanceValue');
-    const spentPct = document.getElementById('spentPct');
-    const barFill = document.getElementById('barFill');
-
-    const maxExpenseEl = document.getElementById('maxExpense');
-    const statusTextEl = document.getElementById('statusText');
-
-    const btnAddRow = document.getElementById('btnAddRow');
-    const btnClearAll = document.getElementById('btnClearAll');
-
-    const btnBackupDownload = document.getElementById('btnBackupDownload');
-    const btnBackupRestore = document.getElementById('btnBackupRestore');
-    const fileRestore = document.getElementById('fileRestore');
-
-    const annualTotalEl = document.getElementById('annualTotal');
-    const categorySumsEl = document.getElementById('categorySums');
-    const recurringListEl = document.getElementById('recurringList');
-
-    const btnTodoOpen = document.getElementById('btnTodoOpen');
-
-    const todoOverlay = document.getElementById('todoOverlay');
-    const btnTodoClose = document.getElementById('btnTodoClose');
-    const todoInput = document.getElementById('todoInput');
-    const btnTodoAdd = document.getElementById('btnTodoAdd');
-    const btnTodoClearAll = document.getElementById('btnTodoClearAll');
-    const todoList = document.getElementById('todoList');
-
-    function loadUI(){
-      try{
-        const raw = localStorage.getItem(STORAGE_UI_KEY);
-        if (!raw) return { monthKey: null, hideBudget: false, filters: { q:"", cat:"" } };
-        const data = JSON.parse(raw);
-        return {
-          monthKey: data?.monthKey ?? null,
-          hideBudget: !!data?.hideBudget,
-          filters: { q: String(data?.filters?.q ?? ""), cat: String(data?.filters?.cat ?? "") }
-        };
-      }catch(e){
-        return { monthKey: null, hideBudget: false, filters: { q:"", cat:"" } };
-      }
-    }
-    function saveUI(){
-      try{
-        const payload = {
-          monthKey: getSelectedMonthKey(),
-          hideBudget: isBudgetHidden(),
-          filters: { q: searchInput.value || "", cat: categoryFilter.value || "" }
-        };
-        localStorage.setItem(STORAGE_UI_KEY, JSON.stringify(payload));
-      }catch(e){}
-    }
-
-    function isBudgetHidden(){
-      return document.body.classList.contains('isHiddenBudget');
-    }
-
-    function setBudgetHidden(hidden){
-      document.body.classList.toggle('isHiddenBudget', hidden);
-
-      if (hidden){
-        budgetInput.dataset.real = budgetInput.value;
-        budgetInput.value = "••••••";
-        budgetInput.setAttribute('readonly','readonly');
-        eyeOpen.style.display = "none";
-        eyeOff.style.display = "";
-      } else {
-        budgetInput.removeAttribute('readonly');
-        const real = budgetInput.dataset.real;
-        if (typeof real === "string" && real.length){
-          budgetInput.value = real;
-        } else if (budgetInput.value === "••••••") {
-          budgetInput.value = "0";
-        }
-        delete budgetInput.dataset.real;
-        eyeOpen.style.display = "";
-        eyeOff.style.display = "none";
-      }
-
-      saveUI();
-      recalc();
-    }
-
-    function populateMonthSelect(preferredKey){
-      const now = new Date();
-      const endYear = now.getFullYear() + FUTURE_YEARS;
-
-      monthSelect.innerHTML = "";
-      let firstKey = null;
-
-      for (let y = START_YEAR; y <= endYear; y++){
-        for (let m = 0; m < 12; m++){
-          if (y === START_YEAR && m < START_MONTH) continue;
-
-          const key = monthKeyFromDate(y,m);
-          if (!firstKey) firstKey = key;
-
-          const label = `${MONTHS_AZ[m][0].toUpperCase()}${MONTHS_AZ[m].slice(1)} ${y}`;
-          const opt = document.createElement('option');
-          opt.value = key;
-          opt.textContent = label;
-          monthSelect.appendChild(opt);
-        }
-      }
-
-      const currentKey = monthKeyFromDate(now.getFullYear(), now.getMonth());
-      const candidate = preferredKey && [...monthSelect.options].some(o=>o.value===preferredKey)
-        ? preferredKey
-        : ([...monthSelect.options].some(o=>o.value===currentKey) ? currentKey : firstKey);
-
-      monthSelect.value = candidate;
-    }
-
-    function getSelectedMonthKey(){ return String(monthSelect.value || ""); }
-    function storageKeyForMonth(monthKey){ return STORAGE_PREFIX + monthKey; }
-
-    function loadRecurring(){
-      try{
-        const raw = localStorage.getItem(STORAGE_RECUR_KEY);
-        if (!raw) return [];
-        const data = JSON.parse(raw);
-        return Array.isArray(data) ? data : [];
-      }catch(e){ return []; }
-    }
-    function saveRecurring(list){
-      try{ localStorage.setItem(STORAGE_RECUR_KEY, JSON.stringify(list)); }catch(e){}
-    }
-
-    function upsertRecurringFromRow(rowObj){
-      const rid = rowObj.rid || uid();
-      const list = loadRecurring();
-      const idx = list.findIndex(x => x.rid === rid);
-      const payload = {
-        rid,
-        title: rowObj.title ?? "Xərc əlavə et",
-        category: rowObj.category ?? "",
-        note: rowObj.note ?? "",
-        amount: safeNum(rowObj.amount)
-      };
-      if (idx >= 0) list[idx] = payload;
-      else list.unshift(payload);
-      saveRecurring(list);
-      return rid;
-    }
-
-    function removeRecurring(rid){
-      const list = loadRecurring().filter(x => x.rid !== rid);
-      saveRecurring(list);
-      renderRecurringList();
-    }
-
-    function renderRecurringList(){
-      const list = loadRecurring();
-      recurringListEl.innerHTML = "";
-
-      if (!list.length){
-        recurringListEl.innerHTML = `<div class="subtle">Hələ təkrarlanan xərc əlavə etməmisən.</div>`;
-        return;
-      }
-
-      for (const item of list){
-        const row = document.createElement('div');
-        row.className = "recRow";
-
-        const title = (item.title || DEFAULT_TITLE).trim() || DEFAULT_TITLE;
-        const cat = (item.category || "").trim();
-        const note = (item.note || "").trim();
-        const sub = [cat, note].filter(Boolean).join(" • ");
-
-        row.innerHTML = `
-          <div class="left">
-            <b title="${escapeHTML(title)}">${escapeHTML(title)}</b>
-            <span title="${escapeHTML(sub)}">${escapeHTML(sub || "—")}</span>
-          </div>
-          <div class="right">
-            <span class="recAmt">${fmt(safeNum(item.amount))}</span>
-            <button class="miniDel" type="button" title="Sil">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M9 3h6m-7 4h8m-9 0l1 14h8l1-14M10 11v7m4-7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        `;
-
-        row.querySelector('.miniDel')?.addEventListener('click', () => {
-          if (!confirm("Bu təkrarlanan xərci silmək istəyirsən? (Gələcək aylara əlavə olunmayacaq)")) return;
-          removeRecurring(item.rid);
-        });
-
-        recurringListEl.appendChild(row);
-      }
-    }
-
-    function computeAnnualTotalAllMonths(){
-      let sum = 0;
-      try{
-        for (let i = 0; i < localStorage.length; i++){
-          const k = localStorage.key(i);
-          if (!k || !k.startsWith(STORAGE_PREFIX)) continue;
-          const raw = localStorage.getItem(k);
-          if (!raw) continue;
-          let data = null;
-          try{ data = JSON.parse(raw); }catch(e){ data = null; }
-          const rows = Array.isArray(data?.rows) ? data.rows : [];
-          for (const r of rows){
-            if ((r?.category || "").trim() === ANNUAL_CATEGORY){
-              sum += safeNum(r?.amount);
-            }
-          }
-        }
-      }catch(e){}
-      annualTotalEl.textContent = fmt(sum);
-    }
-
-    function getRowAmount(tr){ return safeNum(tr.querySelector('.amtInput')?.value); }
-    function getRowTitle(tr){
-      const el = tr.querySelector('.srcInput');
-      const v = (el?.value || '').trim();
-      return v || DEFAULT_TITLE;
-    }
-    function getRowCategory(tr){ return (tr.querySelector('.rowCategory')?.value || '').trim(); }
-    function getRowNote(tr){ return (tr.querySelector('.noteInput')?.value || '').trim(); }
-    function getRowRecurring(tr){ return !!tr.querySelector('.recCheckbox')?.checked; }
-    function getRowPaid(tr){ return tr.classList.contains('paidRow'); }
-    function getRowId(tr){ return tr.dataset.id || ""; }
-    function getRowRid(tr){ return tr.dataset.rid || ""; }
-
-    function setHeat(tr, value, maxForScale){
-      tr.classList.remove('heat-low','heat-mid','heat-high');
-      if (maxForScale <= 0) { tr.classList.add('heat-low'); return; }
-      const ratio = value / maxForScale;
-      if (ratio < 0.34) tr.classList.add('heat-low');
-      else if (ratio < 0.68) tr.classList.add('heat-mid');
-      else tr.classList.add('heat-high');
-    }
-
-    function updateStatus({balance, pct}){
-      statusTextEl.classList.remove('neg','pos');
-
-      if (safeNum(isBudgetHidden() ? (budgetInput.dataset.real ?? 0) : budgetInput.value) <= 0){
-        statusTextEl.textContent = 'Büdcə daxil edilməyib';
-        return;
-      }
-
-      if (balance < 0){
-        statusTextEl.textContent = 'Büdcə aşılıb';
-        statusTextEl.classList.add('neg');
-        return;
-      }
-
-      if (pct >= 90){
-        statusTextEl.textContent = 'Yüksək xərcləmə';
-        statusTextEl.classList.add('neg');
-      } else if (pct >= 60){
-        statusTextEl.textContent = 'Orta xərcləmə';
-      } else {
-        statusTextEl.textContent = 'Normal';
-        statusTextEl.classList.add('pos');
-      }
-    }
-
-    function setPaidUI(tr, paid){
-      tr.classList.toggle('paidRow', !!paid);
-      const btn = tr.querySelector('.payBtn');
-      if (btn){
-        btn.classList.toggle('paid', !!paid);
-        btn.textContent = paid ? "Ödənilib" : "Ödənildi";
-        btn.title = paid ? "Geri al" : "Ödənildi kimi işarələ";
-      }
-    }
-
-    function createRowHTML(row){
-      const id = row?.id || uid();
-      const rid = row?.rid || "";
-      const recurring = !!row?.recurring;
-      const paid = !!row?.paid;
-
-      const title = row?.title ?? DEFAULT_TITLE;
-      const category = row?.category ?? "";
-      const note = row?.note ?? "";
-      const amount = Number.isFinite(row?.amount) ? row.amount : 0;
-
-      return `
-        <tr data-id="${escapeHTML(id)}" data-rid="${escapeHTML(rid)}" class="${paid ? "paidRow" : ""}">
-          <td>
-            <div class="sourceCell">
-              <span class="dot"></span>
-              <div class="stack">
-                <div class="titleRow">
-                  <input class="srcInput" type="text" value="${escapeHTML(title)}" placeholder="${escapeHTML(DEFAULT_TITLE)}" />
-                </div>
-                <div class="metaRow">
-                  <select class="select rowCategory">${rowCategoryOptionsHTML(category)}</select>
-                  <input class="noteInput" type="text" value="${escapeHTML(note)}" placeholder="Əlavə qeyd (məs: İşıqpulu)" />
-                </div>
-              </div>
-            </div>
-          </td>
-          <td class="amountCell">
-            <span class="amountWrap">
-              <label class="recWrap" title="Hər ay avtomatik əlavə olunsun">
-                <input class="recCheckbox" type="checkbox" ${recurring ? "checked" : ""} />
-                <span>Hər ay</span>
-              </label>
-
-              <button class="payBtn ${paid ? "paid" : ""}" type="button" title="${paid ? "Geri al" : "Ödənildi kimi işarələ"}">${paid ? "Ödənilib" : "Ödənildi"}</button>
-
-              <input class="amtInput" type="text" inputmode="numeric" autocomplete="off" value="${escapeHTML(String(amount))}" />
-
-              <button class="delBtn" type="button" title="Sətiri sil">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M9 3h6m-7 4h8m-9 0l1 14h8l1-14M10 11v7m4-7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </span>
-          </td>
-        </tr>
+      tr.innerHTML = `
+        <td>
+          <input class="table-input" value="${item.name}" onchange="updateItem(${index}, 'name', this.value)" placeholder="Məs: Market">
+          <select onchange="updateItem(${index}, 'cat', this.value)" style="background:none; color:var(--muted); border:none; font-size:10px; outline:none;">
+            <option value="Digər" ${item.cat==='Digər'?'selected':''}>Digər</option>
+            <option value="Yığım" ${item.cat==='Yığım'?'selected':''}>İllik Yığım</option>
+            <option value="Kommunal" ${item.cat==='Kommunal'?'selected':''}>Kommunal</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" class="table-input" value="${item.amount}" onchange="updateItem(${index}, 'amount', this.value)">
+        </td>
+        <td style="text-align:right">
+          <button class="btn-pay ${item.paid ? 'done' : ''}" onclick="togglePaid(${index})">${item.paid ? '✓' : 'Ödə'}</button>
+          <button class="btn-del" onclick="deleteItem(${index})">×</button>
+        </td>
       `;
-    }
+      container.appendChild(tr);
+    });
 
-    function wireRow(tr){
-      const amt = tr.querySelector('.amtInput');
-      const title = tr.querySelector('.srcInput');
-      const cat = tr.querySelector('.rowCategory');
-      const note = tr.querySelector('.noteInput');
-      const recCb = tr.querySelector('.recCheckbox');
-      const payBtn = tr.querySelector('.payBtn');
+    // Update Stats
+    const budget = parseFloat(budgetInput.value) || 0;
+    const balance = budget - total;
+    document.getElementById('totalExp').innerText = total.toFixed(2) + " ₼";
+    document.getElementById('balanceVal').innerText = balance.toFixed(2) + " ₼";
+    document.getElementById('balanceVal').style.color = balance < 0 ? 'var(--bad)' : 'var(--good)';
+    
+    const perc = Math.min((total / budget) * 100, 100);
+    document.getElementById('bar').style.width = perc + "%";
 
-      if (amt){
-        wireAutoClearZero(amt);
-        amt.addEventListener('input', () => { normalizeIntText(amt); recalc(); });
-        amt.addEventListener('blur', () => { if (!String(amt.value).trim()) amt.value = "0"; recalc(); });
-      }
+    updateAnnual();
+    localStorage.setItem('my_finances_2026', JSON.stringify(db));
+  }
 
-      if (title){
-        title.addEventListener('focus', () => {
-          const v = (title.value || '').trim();
-          if (v === DEFAULT_TITLE) title.value = '';
+  function addRow() {
+    db[currentMonth].items.push({ name: "", amount: 0, cat: "Digər", paid: false });
+    render();
+  }
+
+  function updateItem(index, key, val) {
+    db[currentMonth].items[index][key] = val;
+    render();
+  }
+
+  function togglePaid(index) {
+    db[currentMonth].items[index].paid = !db[currentMonth].items[index].paid;
+    render();
+  }
+
+  function deleteItem(index) {
+    db[currentMonth].items.splice(index, 1);
+    render();
+  }
+
+  function updateAnnual() {
+    let savings = 0;
+    Object.keys(db).forEach(m => {
+        db[m].items.forEach(i => {
+            if(i.cat === "Yığım") savings += (parseFloat(i.amount) || 0);
         });
-        title.addEventListener('blur', () => {
-          const v = (title.value || '').trim();
-          if (!v) title.value = DEFAULT_TITLE;
-          recalc();
-          applyFilters();
-        });
-        title.addEventListener('input', () => { recalc(); applyFilters(); });
-      }
+    });
+    document.getElementById('annualSummary').innerHTML = `
+        <div style="background:rgba(46,229,157,0.1); padding:15px; border-radius:10px;">
+            <div style="font-size:12px; color:var(--muted)">TOPLAM YIĞIM:</div>
+            <div style="font-size:24px; font-weight:900; color:var(--good)">${savings.toFixed(2)} ₼</div>
+        </div>
+    `;
+  }
 
-      cat?.addEventListener('change', () => {
-        recalc();
-        applyFilters();
-        computeAnnualTotalAllMonths();
-      });
+  monthSelect.onchange = (e) => { currentMonth = e.target.value; init(); };
+  budgetInput.oninput = (e) => { db[currentMonth].budget = e.target.value; render(); };
 
-      note?.addEventListener('input', () => { recalc(); applyFilters(); });
+  function exportData() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+    const a = document.createElement('a');
+    a.setAttribute("href", dataStr);
+    a.setAttribute("download", "maliyya_backup.json");
+    a.click();
+  }
 
-      if (recCb){
-        recCb.addEventListener('change', () => {
-          const rowObj = {
-            id: getRowId(tr) || uid(),
-            rid: getRowRid(tr),
-            recurring: recCb.checked,
-            title: getRowTitle(tr),
-            category: getRowCategory(tr),
-            note: getRowNote(tr),
-            amount: getRowAmount(tr)
-          };
-
-          if (recCb.checked){
-            const rid = upsertRecurringFromRow(rowObj);
-            tr.dataset.rid = rid;
-          } else {
-            const rid = getRowRid(tr);
-            if (rid) removeRecurring(rid);
-            tr.dataset.rid = "";
-          }
-
-          saveMonth();
-          saveUI();
-          renderRecurringList();
-        });
-      }
-
-      if (payBtn){
-        payBtn.addEventListener('click', () => {
-          const next = !getRowPaid(tr);
-          setPaidUI(tr, next);
-          saveMonth();
-          saveUI();
-        });
-      }
-
-      tr.querySelector('.delBtn')?.addEventListener('click', () => {
-        const rid = getRowRid(tr);
-        const wasRecurring = getRowRecurring(tr);
-        if (wasRecurring && rid){
-          removeRecurring(rid);
-        }
-        tr.remove();
-        recalc();
-        applyFilters();
-        computeAnnualTotalAllMonths();
-      });
-
-      setPaidUI(tr, getRowPaid(tr));
+  function clearAll() {
+    if(confirm("Bütün datanı silmək istədiyinizə əminsiniz?")) {
+        db = {};
+        localStorage.clear();
+        init();
     }
+  }
 
-    function addRow(rowData){
-      const payload = {
-        id: rowData?.id || uid(),
-        rid: rowData?.rid || "",
-        recurring: !!rowData?.recurring,
-        paid: !!rowData?.paid,
-        title: rowData?.title ?? DEFAULT_TITLE,
-        category: rowData?.category ?? "",
-        note: rowData?.note ?? "",
-        amount: safeNum(rowData?.amount)
-      };
+  init();
+</script>
 
-      tbody.insertAdjacentHTML('beforeend', createRowHTML(payload));
-      const tr = tbody.querySelector('tr:last-child');
-      wireRow(tr);
-
-      const title = tr.querySelector('.srcInput');
-      if (title){
-        title.focus();
-        if ((title.value || '').trim() === DEFAULT_TITLE) title.value = '';
-      }
-
-      const amt = tr.querySelector('.amtInput');
-      if (amt){
-        amt.value = "";
-        amt.focus();
-      }
-
-      recalc();
-      applyFilters();
-    }
-
-    function snapshot(){
-      const rows = [...tbody.querySelectorAll('tr')].map(tr => ({
-        id: getRowId(tr) || uid(),
-        rid: getRowRid(tr) || "",
-        recurring: getRowRecurring(tr),
-        paid: getRowPaid(tr),
-        title: getRowTitle(tr),
-        category: getRowCategory(tr),
-        note: getRowNote(tr),
-        amount: getRowAmount(tr)
-      }));
-
-      return {
-        version: 6,
-        monthKey: getSelectedMonthKey(),
-        budget: safeNum(isBudgetHidden() ? (budgetInput.dataset.real ?? 0) : budgetInput.value),
-        overtime: safeNum(overtimeManual.value),
-        rows
-      };
-    }
-
-    function saveMonth(){
-      try{
-        const key = storageKeyForMonth(getSelectedMonthKey());
-        localStorage.setItem(key, JSON.stringify(snapshot()));
-      }catch(e){}
-    }
-
-    function loadMonth(monthKey){
-      try{
-        const raw = localStorage.getItem(storageKeyForMonth(monthKey));
-        if (!raw) return null;
-        const data = JSON.parse(raw);
-        if (!data || typeof data !== 'object') return null;
-        if (!Array.isArray(data.rows)) data.rows = [];
-
-        data.rows = data.rows.map(r => ({
-          id: r?.id || uid(),
-          rid: r?.rid || "",
-          recurring: !!r?.recurring,
-          paid: !!r?.paid,
-          title: (r?.title ?? DEFAULT_TITLE),
-          category: (r?.category ?? ""),
-          note: (r?.note ?? ""),
-          amount: safeNum(r?.amount)
-        }));
-
-        return data;
-      }catch(e){
-        return null;
-      }
-    }
-
-    function clearMonth(monthKey){
-      try{ localStorage.removeItem(storageKeyForMonth(monthKey)); }catch(e){}
-    }
-
-    function applyData(data){
-      const realBudget = safeNum(data?.budget);
-      const overtime = safeNum(data?.overtime);
-
-      if (isBudgetHidden()){
-        budgetInput.dataset.real = String(realBudget);
-        budgetInput.value = "••••••";
-      } else {
-        budgetInput.value = String(realBudget || 0);
-      }
-      overtimeManual.value = String(overtime || 0);
-
-      tbody.innerHTML = "";
-      const rows = Array.isArray(data?.rows) ? data.rows : [];
-
-      const recur = loadRecurring();
-      const existingRids = new Set(rows.map(r => r?.rid).filter(Boolean));
-      for (const r of recur){
-        if (!r?.rid) continue;
-        if (existingRids.has(r.rid)) continue;
-        rows.push({
-          id: uid(),
-          rid: r.rid,
-          recurring: true,
-          paid: false,
-          title: r.title ?? DEFAULT_TITLE,
-          category: r.category ?? "",
-          note: r.note ?? "",
-          amount: safeNum(r.amount)
-        });
-      }
-
-      for (const r of rows){
-        tbody.insertAdjacentHTML('beforeend', createRowHTML(r));
-      }
-      [...tbody.querySelectorAll('tr')].forEach(wireRow);
-
-      recalc();
-      applyFilters();
-
-      renderRecurringList();
-      computeAnnualTotalAllMonths();
-    }
-
-    function applyFilters(){
-      const q = (searchInput.value || "").trim().toLowerCase();
-      const cat = (categoryFilter.value || "").trim();
-
-      const trs = [...tbody.querySelectorAll('tr')];
-      for (const tr of trs){
-        const title = (tr.querySelector('.srcInput')?.value || "").toLowerCase();
-        const note = (tr.querySelector('.noteInput')?.value || "").toLowerCase();
-        const rowCat = (tr.querySelector('.rowCategory')?.value || "").trim();
-
-        const matchQ = !q || title.includes(q) || note.includes(q);
-        const matchCat = !cat || rowCat === cat;
-
-        tr.hidden = !(matchQ && matchCat);
-      }
-
-      saveUI();
-    }
-
-    function renderCategorySums(sums){
-      categorySumsEl.innerHTML = "";
-      const hasAny = Object.values(sums).some(v => safeNum(v) > 0);
-
-      if (!hasAny){
-        categorySumsEl.innerHTML = `<div class="subtle">Hələ cəmlənəcək xərc yoxdur.</div>`;
-        return;
-      }
-
-      for (const c of CATEGORIES){
-        const v = safeNum(sums[c] || 0);
-        if (v <= 0) continue;
-
-        const row = document.createElement('div');
-        row.className = "sumRow";
-        row.innerHTML = `<div class="l">${escapeHTML(c)}</div><div class="r">${fmt(v)}</div>`;
-        categorySumsEl.appendChild(row);
-      }
-    }
-
-    function recalc(){
-      const rows = [...tbody.querySelectorAll('tr')];
-
-      let total = 0;
-      let maxAmount = -Infinity;
-      let maxTitle = '—';
-
-      const sums = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
-
-      for (const tr of rows){
-        const amt = getRowAmount(tr);
-        const cat = getRowCategory(tr) || "";
-        total += amt;
-
-        if (cat && sums.hasOwnProperty(cat)) sums[cat] += amt;
-
-        if (amt > maxAmount){
-          maxAmount = amt;
-          maxTitle = getRowTitle(tr);
-        }
-      }
-
-      const budgetReal = safeNum(isBudgetHidden() ? (budgetInput.dataset.real ?? 0) : budgetInput.value);
-      const overtime = safeNum(overtimeManual.value);
-      const balance = budgetReal + overtime - total;
-
-      totalValue.textContent = fmt(total);
-      balanceValue.textContent = fmt(balance);
-
-      const pct = budgetReal > 0 ? (total / budgetReal) * 100 : 0;
-      const pctClamped = clamp(pct, 0, 150);
-      spentPct.textContent = `${pctClamped.toFixed(0)}%`;
-      barFill.style.width = `${clamp(pct, 0, 100)}%`;
-
-      if (!Number.isFinite(maxAmount) || maxAmount < 0){
-        maxExpenseEl.textContent = '—';
-      } else {
-        maxExpenseEl.textContent = `${maxTitle} — ${fmt(maxAmount)}`;
-      }
-
-      updateStatus({balance, pct});
-
-      const scaleMax = Math.max(maxAmount, 1);
-      for (const tr of rows){
-        setHeat(tr, getRowAmount(tr), scaleMax);
-      }
-
-      renderCategorySums(sums);
-
-      saveMonth();
-      saveUI();
-      computeAnnualTotalAllMonths();
-    }
-
-    function downloadJSON(filename, obj){
-      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    // ====== TODOS ======
-    function loadTodos(){
-      try{
-        const raw = localStorage.getItem(STORAGE_TODO_KEY);
-        if (!raw) return [];
-        const data = JSON.parse(raw);
-        return Array.isArray(data) ? data : [];
-      }catch(e){ return []; }
-    }
-    function saveTodos(list){
-      try{ localStorage.setItem(STORAGE_TODO_KEY, JSON.stringify(list)); }catch(e){}
-    }
-
-    function renderTodos(){
-      const list = loadTodos();
-      todoList.innerHTML = "";
-
-      if (!list.length){
-        todoList.innerHTML = `<div class="subtle">Hələ heç nə əlavə etməmisən.</div>`;
-        return;
-      }
-
-      for (const item of list){
-        const row = document.createElement('div');
-        row.className = "todoRow" + (item.done ? " todoDone" : "");
-        row.dataset.id = item.id;
-
-        row.innerHTML = `
-          <div class="todoLeft">
-            <input type="checkbox" ${item.done ? "checked" : ""} />
-            <div class="todoText" title="${escapeHTML(item.text)}">${escapeHTML(item.text)}</div>
-          </div>
-          <button class="todoDel" type="button" title="Sil">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M9 3h6m-7 4h8m-9 0l1 14h8l1-14M10 11v7m4-7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        `;
-
-        const cb = row.querySelector('input[type="checkbox"]');
-        cb.addEventListener('change', () => {
-          const list2 = loadTodos();
-          const idx = list2.findIndex(x => x.id === item.id);
-          if (idx >= 0){
-            list2[idx].done = !!cb.checked;
-            saveTodos(list2);
-            renderTodos();
-          }
-        });
-
-        row.querySelector('.todoDel')?.addEventListener('click', () => {
-          const list2 = loadTodos().filter(x => x.id !== item.id);
-          saveTodos(list2);
-          renderTodos();
-        });
-
-        todoList.appendChild(row);
-      }
-    }
-
-    function addTodo(text){
-      const t = String(text || "").trim();
-      if (!t) return;
-      const list = loadTodos();
-      const id = uid();
-      list.unshift({ id, text: t, done: false });
-      saveTodos(list);
-      renderTodos();
-    }
-
-    function clearAllTodos(){
-      if (!confirm("Bütün ediləcəklər siyahısı silinsin?")) return;
-      saveTodos([]);
-      renderTodos();
-    }
-
-    function tickDate(){
-      const now = new Date();
-      todayText.textContent = formatTodayAZ(now);
-      countdownText.textContent = endOfYearCountdownText(now);
-    }
-
-    (function init(){
-      tickDate();
-      setInterval(tickDate, 1000);
-
-      categoryFilter.innerHTML = categoryOptionsHTML("");
-      categoryFilter.value = "";
-
-      const ui = loadUI();
-      populateMonthSelect(ui.monthKey);
-
-      searchInput.value = ui.filters.q || "";
-      categoryFilter.value = ui.filters.cat || "";
-
-      if (ui.hideBudget) setBudgetHidden(true);
-
-      wireAutoClearZero(budgetInput);
-      wireAutoClearZero(overtimeManual);
-
-      budgetInput.addEventListener('input', () => {
-        if (isBudgetHidden()) return;
-        normalizeIntText(budgetInput);
-        recalc();
-      });
-      overtimeManual.addEventListener('input', () => { normalizeIntText(overtimeManual); recalc(); });
-
-      btnToggleBudget.addEventListener('click', () => setBudgetHidden(!isBudgetHidden()));
-
-      const mKey = getSelectedMonthKey();
-      const data = loadMonth(mKey);
-      applyData(data || { budget: 0, overtime: 0, rows: [] });
-
-      monthSelect.addEventListener('change', () => {
-        const key = getSelectedMonthKey();
-        const data2 = loadMonth(key);
-        applyData(data2 || { budget: 0, overtime: 0, rows: [] });
-        saveUI();
-      });
-
-      searchInput.addEventListener('input', applyFilters);
-      categoryFilter.addEventListener('change', applyFilters);
-      btnResetFilters.addEventListener('click', () => {
-        searchInput.value = "";
-        categoryFilter.value = "";
-        applyFilters();
-      });
-
-      btnAddRow.addEventListener('click', () => addRow({ title: DEFAULT_TITLE, category: "", note: "", amount: 0, recurring: false, paid: false }));
-
-      btnClearAll.addEventListener('click', () => {
-        const mk = getSelectedMonthKey();
-        tbody.innerHTML = "";
-        if (isBudgetHidden()){
-          budgetInput.dataset.real = "0";
-          budgetInput.value = "••••••";
-        } else {
-          budgetInput.value = "0";
-        }
-        overtimeManual.value = "0";
-        clearMonth(mk);
-        recalc();
-        applyFilters();
-        computeAnnualTotalAllMonths();
-      });
-
-      btnBackupDownload.addEventListener('click', () => {
-        const data = snapshot();
-        const ts = new Date();
-        const y = ts.getFullYear();
-        const m = pad2(ts.getMonth()+1);
-        const d = pad2(ts.getDate());
-        const mk = getSelectedMonthKey();
-        downloadJSON(`xerc-backup-${mk}-${y}-${m}-${d}.json`, data);
-      });
-
-      btnBackupRestore.addEventListener('click', () => {
-        fileRestore.value = "";
-        fileRestore.click();
-      });
-
-      fileRestore.addEventListener('change', async () => {
-        const file = fileRestore.files?.[0];
-        if (!file) return;
-
-        try{
-          const text = await file.text();
-          const data = JSON.parse(text);
-
-          if (!data || typeof data !== "object" || !Array.isArray(data.rows)){
-            alert("Bu fayl düzgün backup deyil.");
-            return;
-          }
-
-          applyData({
-            budget: safeNum(data.budget),
-            overtime: safeNum(data.overtime),
-            rows: data.rows.map(r => ({
-              id: r?.id || uid(),
-              rid: r?.rid || "",
-              recurring: !!r?.recurring,
-              paid: !!r?.paid,
-              title: (r.title ?? DEFAULT_TITLE),
-              category: (r.category ?? ""),
-              note: (r.note ?? ""),
-              amount: safeNum(r.amount)
-            }))
-          });
-
-          alert("Backup uğurla bərpa olundu.");
-        }catch(e){
-          alert("Backup oxunmadı. Fayl JSON formatında olmalıdır.");
-        }
-      });
-
-      // ===== Todo modal wiring =====
-      function openTodo(){
-        todoOverlay.classList.add('open');
-        renderTodos();
-        setTimeout(()=>todoInput.focus(), 0);
-      }
-      function closeTodo(){
-        todoOverlay.classList.remove('open');
-      }
-
-      btnTodoOpen.addEventListener('click', openTodo);
-      btnTodoClose.addEventListener('click', closeTodo);
-      todoOverlay.addEventListener('click', (e) => { if (e.target === todoOverlay) closeTodo(); });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape" && todoOverlay.classList.contains('open')) closeTodo();
-      });
-
-      btnTodoAdd.addEventListener('click', () => {
-        addTodo(todoInput.value);
-        todoInput.value = "";
-        todoInput.focus();
-      });
-      todoInput.addEventListener('keydown', (e) => {
-        if (e.key === "Enter"){
-          e.preventDefault();
-          btnTodoAdd.click();
-        }
-      });
-
-      btnTodoClearAll.addEventListener('click', clearAllTodos);
-
-      renderRecurringList();
-      computeAnnualTotalAllMonths();
-
-      applyFilters();
-    })();
-  </script>
 </body>
 </html>
