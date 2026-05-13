@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v12 (Firebase Live)</title>
+  <title>Maaş Hesabatı v13</title>
   
   <!-- Firebase Kitabxanaları -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -15,25 +15,18 @@
 
   <style>
     :root {
-      --bg: #0b0e14;
-      --card: #161b22;
-      --accent: #ff9f1a;
-      --green: #2ee59d;
-      --red: #ff6b6b;
-      --text-main: #f0f6fc;
-      --text-dim: #8b949e;
-      --border: #30363d;
+      --bg: #0b0e14; --card: #161b22; --accent: #ff9f1a; --green: #2ee59d;
+      --red: #ff6b6b; --text-main: #f0f6fc; --text-dim: #8b949e; --border: #30363d;
     }
-
     * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 15px; }
     .container { max-width: 1100px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-    .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; user-select: none; }
+    .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
     .select-wrapper { position: relative; width: fit-content; }
     .select-wrapper::after { content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
     select { appearance: none; padding-right: 30px !important; background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; }
-    .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; transition: 0.3s; }
+    .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; }
     .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
     .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
@@ -44,8 +37,8 @@
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
     .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; }
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-    .tab-link { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; border: none; }
-    .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
+    .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .tab-link.active { background: var(--accent); color: #000; }
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     @media (min-width: 600px) { .input-group { flex-direction: row; } }
     input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
@@ -55,11 +48,9 @@
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
     .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border-style: dashed !important; border: 1px solid var(--border); }
+    .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border: 1px dashed var(--border); }
     .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
-    .backup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: rgba(255,255,255,0.01); border-top: 1px solid var(--border); }
-    .btn-backup { background: #21262d; color: white; border: 1px solid var(--border); padding: 12px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
     .hidden { display: none; }
   </style>
 </head>
@@ -67,28 +58,21 @@
 
 <div class="container">
   <header>
-    <div class="brand" onclick="window.location.reload()">Maaş Hesabatı</div>
+    <div class="brand" onclick="window.location.reload()">
+      <span>💸</span> Maaş Hesabatı
+    </div>
     <div class="select-wrapper">
       <select id="monthSelector" onchange="init()"></select>
     </div>
   </header>
 
   <div id="statusMsg" class="alert alert-neutral">Firebase-ə bağlanılır...</div>
-  <div id="detailAlert" class="detail-msg">Xərclərinizi daxil etdikcə analiz bura gələcək.</div>
+  <div id="detailAlert" class="detail-msg">Analiz hazırlanır...</div>
 
   <div class="top-stats">
-    <div class="stat-box">
-      <label>Aylıq Maaş</label>
-      <input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0">
-    </div>
-    <div class="stat-box">
-      <label>Ümumi Xərc</label>
-      <span class="val" id="totalSpent">0 ₼</span>
-    </div>
-    <div class="stat-box">
-      <label>Qalıq Balans</label>
-      <span class="val" id="totalBalance">0 ₼</span>
-    </div>
+    <div class="stat-box"><label>Aylıq Maaş</label><input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0"></div>
+    <div class="stat-box"><label>Ümumi Xərc</label><span class="val" id="totalSpent">0 ₼</span></div>
+    <div class="stat-box"><label>Qalıq Balans</label><span class="val" id="totalBalance">0 ₼</span></div>
   </div>
 
   <div class="nav-tabs">
@@ -98,10 +82,8 @@
 
   <div id="sectionPlan" class="card">
     <div class="input-group">
-      <div class="select-wrapper" style="width:100%">
-        <select id="expCat" onchange="toggleOtherInput()"></select>
-      </div>
-      <input type="text" id="otherCatInput" class="hidden" placeholder="Xərcin adını yazın">
+      <div class="select-wrapper" style="width:100%"><select id="expCat" onchange="toggleOtherInput()"></select></div>
+      <input type="text" id="otherCatInput" class="hidden" placeholder="Xərcin adı">
       <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
@@ -111,18 +93,10 @@
     </table>
   </div>
 
-  <div id="sectionAna" class="card hidden">
-    <div id="analyticsTable"></div>
-    <div class="backup-section">
-        <button class="btn-backup" onclick="exportJSON()">📥 Yedəklə (JSON)</button>
-        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 Məlumatı Yüklə</button>
-        <input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
-    </div>
-  </div>
+  <div id="sectionAna" class="card hidden"><div id="analyticsTable"></div></div>
 </div>
 
 <script>
-  // 🔥 Firebase Config - SƏNİN MƏLUMATLARIN
   const firebaseConfig = {
     apiKey: "AIzaSyAsYLwxEwQpRliICJhr6cklZ5kE-P0jyko",
     authDomain: "maas-hesabat.firebaseapp.com",
@@ -136,7 +110,8 @@
   firebase.initializeApp(firebaseConfig);
   const db_fb = firebase.database();
 
-  const baseCategories = ["Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", "Baxım", "Həkim", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"];
+  // "Gündəlik bazarlıq" əlavə olundu
+  const baseCategories = ["Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", "Baxım", "Həkim", "Gündəlik bazarlıq", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"];
   const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
   
   let db = {};
@@ -147,25 +122,20 @@
     if(selector.options.length > 0) return;
     months.forEach(m => {
         let opt = document.createElement('option');
-        opt.value = `${m}_2026`;
-        opt.innerText = `${m} 2026`;
+        opt.value = `${m}_2026`; opt.innerText = `${m} 2026`;
         selector.appendChild(opt);
     });
     selector.value = months[new Date().getMonth()] + "_2026";
   }
 
-  // Firebase-dən datanı çəkirik
   function init() {
     setupMonthSelector();
     currentMonth = document.getElementById('monthSelector').value;
-    
     document.getElementById('expCat').innerHTML = baseCategories.map(c => `<option value="${c}">${c}</option>`).join('');
 
     db_fb.ref('maliyya_v12').on('value', (snapshot) => {
       db = snapshot.val() || {};
-      if (!db[currentMonth]) {
-        db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
-      }
+      if (!db[currentMonth]) db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
       document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
       document.getElementById('statusMsg').innerText = "✅ Firebase Aktif";
       document.getElementById('statusMsg').className = "alert alert-info";
@@ -174,13 +144,12 @@
   }
 
   function toggleOtherInput() {
-    const isOther = document.getElementById('expCat').value === "Digər";
-    document.getElementById('otherCatInput').classList.toggle('hidden', !isOther);
+    document.getElementById('otherCatInput').classList.toggle('hidden', document.getElementById('expCat').value !== "Digər");
   }
 
   function updateSalary() {
-    const salary = parseFloat(document.getElementById('monthlySalary').value) || 0;
-    db_fb.ref(`maliyya_v12/${currentMonth}/salary`).set(salary);
+    const val = parseFloat(document.getElementById('monthlySalary').value) || 0;
+    db_fb.ref(`maliyya_v12/${currentMonth}/salary`).set(val);
   }
 
   function addExpense() {
@@ -189,20 +158,19 @@
     const amt = parseFloat(document.getElementById('expAmt').value);
     
     if (cat === "Digər") {
-        if (!otherVal) return alert("Xərcin adını yazın!");
+        if (!otherVal) return alert("Xərc adını yazın!");
         cat = otherVal;
-        let customCats = db[currentMonth].customCats || [];
-        if (!customCats.includes(cat)) {
-            customCats.push(cat);
-            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(customCats);
+        let cCats = db[currentMonth].customCats || [];
+        if (!cCats.includes(cat)) {
+            cCats.push(cat);
+            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cCats);
         }
     }
     if (!amt) return;
     
-    let expenses = db[currentMonth].expenses || [];
-    expenses.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
-    
-    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(expenses);
+    let exps = db[currentMonth].expenses || [];
+    exps.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
+    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
 
     document.getElementById('expAmt').value = "";
     document.getElementById('otherCatInput').value = "";
@@ -210,15 +178,15 @@
     toggleOtherInput();
   }
 
+  // Bazadan tam silinmə funksiyası
   function deleteExp(idx) {
-    let expenses = db[currentMonth].expenses;
-    expenses.splice(idx, 1);
-    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(expenses);
+    let exps = db[currentMonth].expenses;
+    exps.splice(idx, 1);
+    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
   }
 
   function updateTarget(cat, val) {
-    const target = parseFloat(val) || 0;
-    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${cat}`).set(target);
+    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${cat}`).set(parseFloat(val) || 0);
   }
 
   function switchTab(t) {
@@ -231,7 +199,9 @@
   function render() {
     const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
     const table = document.getElementById('expenseTable');
-    table.innerHTML = (data.expenses || []).map((item, i) => `
+    const expenses = data.expenses || [];
+    
+    table.innerHTML = expenses.map((item, i) => `
       <tr>
         <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
         <td style="font-weight:700">${item.amt} ₼</td>
@@ -245,20 +215,15 @@
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
 
     anaTable.innerHTML = activeCats.map(cat => {
-      const targets = data.targets || {};
-      const target = targets[cat] || 0;
-      const expenses = data.expenses || [];
+      const target = (data.targets || {})[cat] || 0;
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
       
       if (target > 0) {
-          if (diff < 0) {
-              alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Hədəfdən <b>${Math.abs(diff.toFixed(0))}₼</b> çox xərclədiniz.</span>`);
-          } else if (spent > 0 && diff > 0) {
-              alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Hədəfdən <b>${diff.toFixed(0)}₼</b> az xərclədiniz.</span>`);
-          }
+          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: -${Math.abs(diff.toFixed(0))}₼ artıq.</span>`);
+          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: ${diff.toFixed(0)}₼ qənaət.</span>`);
       }
 
       return `<div class="ana-row">
@@ -279,43 +244,11 @@
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
     const statusMsg = document.getElementById('statusMsg');
-    if (salary === 0) {
-        statusMsg.innerText = "Lütfən, maaş daxil edin."; statusMsg.className = "alert alert-neutral";
-    } else if (balance < 0) {
-        statusMsg.innerText = "Büdcə Aşıldı! (" + spentPerc.toFixed(0) + "%)"; statusMsg.className = "alert alert-warn";
-    } else if (spentPerc > 85) {
-        statusMsg.innerText = "Kritik Hədd: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
-    } else if (spentPerc > 50) {
-        statusMsg.innerText = "Vəziyyət Orta: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
-    } else {
-        statusMsg.innerText = "Vəziyyət Yaxşı: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
-    }
+    if (salary === 0) { statusMsg.innerText = "Maaş daxil edin."; statusMsg.className = "alert alert-neutral"; }
+    else if (balance < 0) { statusMsg.innerText = "Büdcə Aşıldı!"; statusMsg.className = "alert alert-warn"; }
+    else { statusMsg.innerText = "Vəziyyət: " + spentPerc.toFixed(0) + "% xərclənib."; statusMsg.className = "alert alert-info"; }
 
-    const detailAlert = document.getElementById('detailAlert');
-    detailAlert.innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Xərclərinizi daxil etdikcə analiz bura gələcək.";
-    detailAlert.style.borderLeftColor = alerts.length > 0 ? "var(--accent)" : "var(--border)";
-  }
-
-  // Lokal yedəkləmə hələ də işləyir
-  function exportJSON() {
-    const blob = new Blob([JSON.stringify(db)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url; link.download = `maliyya_firebase_backup.json`; link.click();
-  }
-
-  function importJSON(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const importedData = JSON.parse(e.target.result);
-        db_fb.ref('maliyya_v12').update(importedData);
-        alert("Məlumatlar Firebase-ə yükləndi!");
-      } catch (err) { alert("Xətalı fayl!"); }
-    };
-    reader.readAsText(file);
+    document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
   }
 
   init();
