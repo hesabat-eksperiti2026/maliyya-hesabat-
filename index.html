@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v10</title>
+  <title>Maaş Hesabatı v11</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
     .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
 
-    .detail-msg { font-size: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 20px; color: var(--text-dim); line-height: 1.6; border-left: 3px solid var(--accent); }
+    .detail-msg { font-size: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 20px; color: var(--text-main); line-height: 1.8; border-left: 3px solid var(--accent); }
 
     .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
     .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
@@ -83,6 +83,7 @@
     </div>
   </header>
 
+  <!-- Dinamik Analiz Panelləri -->
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
   <div id="detailAlert" class="detail-msg">Xərclərinizi daxil etdikcə analiz bura gələcək.</div>
 
@@ -214,7 +215,7 @@
 
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
-    let issues = [];
+    let alerts = [];
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...db[currentMonth].customCats])];
 
     anaTable.innerHTML = activeCats.map(cat => {
@@ -223,7 +224,16 @@
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
-      if (diff < 0) issues.push(`⚠️ <b>${cat}</b>: <b>${Math.abs(diff.toFixed(0))}₼</b> hədəfdən çox xərclədiniz.`);
+      
+      // Mesaj məntiqi
+      if (target > 0) {
+          if (diff < 0) {
+              alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Hədəfdən <b>${Math.abs(diff.toFixed(0))}₼</b> çox xərclədiniz.</span>`);
+          } else if (spent > 0 && diff > 0) {
+              alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Hədəfdən <b>${diff.toFixed(0)}₼</b> az xərclədiniz.</span>`);
+          }
+      }
+
       return `<div class="ana-row">
           <div><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
@@ -241,6 +251,7 @@
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
+    // Üst Dinamik Status
     const statusMsg = document.getElementById('statusMsg');
     if (salary === 0) {
         statusMsg.innerText = "Lütfən, maaş daxil edin."; statusMsg.className = "alert alert-neutral";
@@ -254,13 +265,14 @@
         statusMsg.innerText = "Vəziyyət Yaxşı: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     }
 
+    // Alt Detallı Analiz
     const detailAlert = document.getElementById('detailAlert');
-    if (issues.length > 0) {
-        detailAlert.innerHTML = issues.join("<br>"); detailAlert.style.borderLeftColor = "var(--red)";
-    } else if (totalSpent > 0) {
-        detailAlert.innerHTML = "Hələlik bütün kateqoriyalar hədəf daxilindədir. ✅"; detailAlert.style.borderLeftColor = "var(--green)";
+    if (alerts.length > 0) {
+        detailAlert.innerHTML = alerts.join("<br>");
+        detailAlert.style.borderLeftColor = "var(--accent)";
     } else {
-        detailAlert.innerHTML = "Xərclərinizi daxil etdikcə analiz bura gələcək."; detailAlert.style.borderLeftColor = "var(--accent)";
+        detailAlert.innerHTML = "Xərclərinizi daxil etdikcə analiz bura gələcək.";
+        detailAlert.style.borderLeftColor = "var(--border)";
     }
   }
 
