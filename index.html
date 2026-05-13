@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v8</title>
+  <title>Maaş Hesabatı v9</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,93 +24,42 @@
     * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     
     body { 
-      margin: 0; 
-      font-family: 'Inter', sans-serif; 
-      background: var(--bg); 
-      color: var(--text-main); 
-      padding: 15px;
+      margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 15px;
     }
 
     .container { max-width: 1100px; margin: 0 auto; }
 
     header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 20px; 
-      padding-bottom: 15px;
-      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);
     }
     
-    .brand { 
-        margin: 0; 
-        font-size: 22px; 
-        font-weight: 900; 
-        cursor: pointer; 
-        color: var(--accent);
-        user-select: none;
-    }
+    .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); user-select: none; }
 
     .select-wrapper { position: relative; width: fit-content; }
     .select-wrapper::after {
-        content: "▼";
-        font-size: 10px;
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-dim);
-        pointer-events: none;
+        content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none;
     }
 
     select { appearance: none; padding-right: 30px !important; }
 
-    .top-stats { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
-      gap: 10px; 
-      margin-bottom: 15px; 
-    }
-    
-    .stat-box { 
-      background: var(--card); 
-      padding: 12px; 
-      border-radius: 12px; 
-      border: 1px solid var(--border);
-    }
-    
-    .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
-    .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
-    .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; padding: 0; }
-
-    .alert { 
-        padding: 15px; border-radius: 12px; margin-bottom: 10px; 
-        font-size: 14px; font-weight: 700; border: 1px solid transparent; text-align: center;
-    }
+    .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; }
     .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
     .alert-neutral { background: var(--card); color: var(--text-dim); border-color: var(--border); }
 
-    .detail-msg {
-        font-size: 12px;
-        padding: 12px;
-        background: rgba(255,255,255,0.03);
-        border-radius: 10px;
-        margin-bottom: 20px;
-        color: var(--text-dim);
-        line-height: 1.6;
-        border-left: 3px solid var(--accent);
-    }
+    .detail-msg { font-size: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 20px; color: var(--text-dim); line-height: 1.6; border-left: 3px solid var(--accent); }
+
+    .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
+    .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
+    .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
+    .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
+    .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; }
 
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-    .tab-link { 
-      flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); 
-      padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px;
-    }
+    .tab-link { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
     .tab-link.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
-    
     @media (min-width: 600px) { .input-group { flex-direction: row; } }
 
     input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; }
@@ -122,22 +71,10 @@
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
 
-    .ana-row { 
-      display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; 
-      padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px;
-    }
+    .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
     .target-input { width: 100% !important; padding: 4px !important; font-size: 12px !important; text-align: center; border-style: dashed !important; }
     .prog-bar-bg { grid-column: span 4; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
-
-    .backup-section {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px;
-        background: rgba(255,255,255,0.01); border-top: 1px solid var(--border);
-    }
-    .btn-backup {
-        background: #21262d; color: white; border: 1px solid var(--border);
-        padding: 12px; border-radius: 10px; font-size: 11px; font-weight: 600; cursor: pointer;
-    }
 
     .hidden { display: none; }
   </style>
@@ -146,20 +83,14 @@
 
 <div class="container">
   <header>
-    <div class="brand" onclick="window.location.reload()">Maaş Hesabatı</div>
+    <div class="brand">Maaş Hesabatı</div>
     <div class="select-wrapper">
-      <select id="monthSelector" onchange="changeMonth()">
-        <option value="May_2026">May 2026</option>
-        <option value="Iyun_2026">İyun 2026</option>
-        <option value="Iyul_2026">İyul 2026</option>
-        <option value="Avqust_2026">Avqust 2026</option>
-      </select>
+      <select id="monthSelector" onchange="init()"></select>
     </div>
   </header>
 
-  <!-- Dinamik Analiz Panelləri -->
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
-  <div id="detailAlert" class="detail-msg">Xərclərinizi daxil etdikcə analiz bura gələcək.</div>
+  <div id="detailAlert" class="detail-msg">Analiz hazırlanır...</div>
 
   <div class="top-stats">
     <div class="stat-box">
@@ -184,19 +115,16 @@
   <div id="sectionPlan" class="card">
     <div class="input-group">
       <div class="select-wrapper" style="width:100%">
-        <select id="expCat"></select>
+        <select id="expCat" onchange="toggleOtherInput()"></select>
       </div>
+      <input type="text" id="otherCatInput" class="hidden" placeholder="Xərcin adını yazın">
       <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
 
     <table>
       <thead>
-        <tr>
-          <th>KATEQORİYA</th>
-          <th>MƏBLƏĞ</th>
-          <th style="text-align:right">SİL</th>
-        </tr>
+        <tr><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th style="text-align:right">SİL</th></tr>
       </thead>
       <tbody id="expenseTable"></tbody>
     </table>
@@ -204,40 +132,56 @@
 
   <div id="sectionAna" class="card hidden">
     <div id="analyticsTable"></div>
-    <div class="backup-section">
-        <button class="btn-backup" onclick="exportJSON()">📥 Yedəklə (JSON)</button>
-        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 Məlumatı Yüklə</button>
-        <input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
-    </div>
   </div>
 </div>
 
 <script>
-  const categoryList = [
+  const baseCategories = [
     "Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", 
     "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", 
-    "Baxım", "Həkim", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran"
+    "Baxım", "Həkim", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"
   ];
 
-  let db = JSON.parse(localStorage.getItem('maliyya_v5_db')) || {};
+  const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+  
+  let db = JSON.parse(localStorage.getItem('maliyya_v9_db')) || {};
   let currentMonth = "";
 
+  function setupMonthSelector() {
+    const selector = document.getElementById('monthSelector');
+    if(selector.options.length > 0) return;
+    months.forEach(m => {
+        let opt = document.createElement('option');
+        opt.value = `${m}_2026`;
+        opt.innerText = `${m} 2026`;
+        selector.appendChild(opt);
+    });
+    // Cari ayı avtomatik seç (indiki ay May-dırsa)
+    selector.value = "May_2026";
+  }
+
   function init() {
+    setupMonthSelector();
     currentMonth = document.getElementById('monthSelector').value;
+    
     const expCat = document.getElementById('expCat');
-    expCat.innerHTML = categoryList.map(c => `<option value="${c}">${c}</option>`).join('');
+    expCat.innerHTML = baseCategories.map(c => `<option value="${c}">${c}</option>`).join('');
 
     if (!db[currentMonth]) {
       db[currentMonth] = {
         salary: 0, expenses: [],
-        targets: { "Kredit": 650, "Şaxnuz maaş": 500, "Komunal": 100, "Xalidə x. komunal": 80, "Kontur": 30, "Borc": 100, "Ehtiyat pul": 0, "Benzin": 50, "İstirahət": 350, "Paltar": 50, "Baxım": 50, "Həkim": 0, "Bazarlıq": 400, "ARslan bazarlıq": 250, "Ət": 50, "Restoran": 100 }
+        targets: { "Kredit": 650, "Şaxnuz maaş": 500, "Komunal": 100, "Bazarlıq": 400 },
+        customCats: [] // "Digər" vasitəsilə əlavə olunan dinamik adlar
       };
     }
     document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
     render();
   }
 
-  function changeMonth() { init(); }
+  function toggleOtherInput() {
+    const isOther = document.getElementById('expCat').value === "Digər";
+    document.getElementById('otherCatInput').classList.toggle('hidden', !isOther);
+  }
 
   function updateSalary() {
     db[currentMonth].salary = parseFloat(document.getElementById('monthlySalary').value) || 0;
@@ -245,11 +189,25 @@
   }
 
   function addExpense() {
-    const cat = document.getElementById('expCat').value;
+    let cat = document.getElementById('expCat').value;
+    const otherVal = document.getElementById('otherCatInput').value.trim();
     const amt = parseFloat(document.getElementById('expAmt').value);
+
+    if (cat === "Digər") {
+        if (!otherVal) return alert("Xərcin adını yazın!");
+        cat = otherVal;
+        if (!db[currentMonth].customCats.includes(cat)) {
+            db[currentMonth].customCats.push(cat);
+        }
+    }
+
     if (!amt) return;
+    
     db[currentMonth].expenses.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
     document.getElementById('expAmt').value = "";
+    document.getElementById('otherCatInput').value = "";
+    document.getElementById('expCat').value = baseCategories[0];
+    toggleOtherInput();
     save(); render();
   }
 
@@ -263,7 +221,7 @@
     save(); render();
   }
 
-  function save() { localStorage.setItem('maliyya_v5_db', JSON.stringify(db)); }
+  function save() { localStorage.setItem('maliyya_v9_db', JSON.stringify(db)); }
 
   function switchTab(t) {
     document.getElementById('sectionPlan').classList.toggle('hidden', t !== 'plan');
@@ -278,25 +236,25 @@
       <tr>
         <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
         <td style="font-weight:700">${item.amt} ₼</td>
-        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px; cursor:pointer;">&times;</button></td>
+        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px;">&times;</button></td>
       </tr>
     `).join('');
 
     const anaTable = document.getElementById('analyticsTable');
     let totalSpent = 0;
     let issues = [];
-    let summaries = [];
 
-    anaTable.innerHTML = categoryList.map(cat => {
+    // Bütün aktiv kateqoriyalar (baza + bu ay əlavə edilən digərlər)
+    const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...db[currentMonth].customCats])];
+
+    anaTable.innerHTML = activeCats.map(cat => {
       const target = db[currentMonth].targets[cat] || 0;
       const spent = db[currentMonth].expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
       
-      if (diff < 0) {
-          issues.push(`⚠️ <b>${cat}</b>: Hədəfi <b>${Math.abs(diff.toFixed(0))}₼</b> aşmısınız.`);
-      }
+      if (diff < 0) issues.push(`⚠️ <b>${cat}</b>: <b>${Math.abs(diff.toFixed(0))}₼</b> artıq xərcləndi.`);
 
       return `
         <div class="ana-row">
@@ -304,9 +262,7 @@
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
           <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
-          <div class="prog-bar-bg">
-            <div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div>
-          </div>
+          <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
         </div>
       `;
     }).join('');
@@ -319,64 +275,17 @@
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
-    // ÜST ANA MESAJ (FAİZLƏ)
     const statusMsg = document.getElementById('statusMsg');
     if (salary === 0) {
         statusMsg.innerText = "Lütfən, maaş daxil edin.";
         statusMsg.className = "alert alert-neutral";
-    } else if (balance < 0) {
-        statusMsg.innerText = "Büdcə Aşıldı! (" + spentPerc.toFixed(0) + "%)";
-        statusMsg.className = "alert alert-warn";
-    } else if (spentPerc > 85) {
-        statusMsg.innerText = "Kritik Hədd: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!";
-        statusMsg.className = "alert alert-warn";
-    } else if (spentPerc > 50) {
-        statusMsg.innerText = "Vəziyyət Orta: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
-        statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "Vəziyyət Yaxşı: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib.";
-        statusMsg.className = "alert alert-info";
+        statusMsg.innerText = balance < 0 ? "Büdcə Aşıldı! ("+spentPerc.toFixed(0)+"%)" : "Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib.";
+        statusMsg.className = balance < 0 || spentPerc > 90 ? "alert alert-warn" : "alert alert-info";
     }
 
-    // ALT DETALLI ANALİZ (KATEQORİYALAR ÜZRƏ)
     const detailAlert = document.getElementById('detailAlert');
-    if (issues.length > 0) {
-        detailAlert.innerHTML = issues.join("<br>");
-        detailAlert.style.borderLeftColor = "var(--red)";
-    } else if (totalSpent > 0) {
-        detailAlert.innerHTML = "Hələlik bütün kateqoriyalar hədəf daxilindədir. ✅";
-        detailAlert.style.borderLeftColor = "var(--green)";
-    } else {
-        detailAlert.innerHTML = "Xərclərinizi daxil etdikcə analiz bura gələcək.";
-        detailAlert.style.borderLeftColor = "var(--accent)";
-    }
-  }
-
-  function exportJSON() {
-    const dataStr = localStorage.getItem('maliyya_v5_db');
-    if(!dataStr) return alert("Məlumat yoxdur!");
-    const blob = new Blob([dataStr], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `maliyya_backup.json`;
-    link.click();
-  }
-
-  function importJSON(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const importedData = JSON.parse(e.target.result);
-        localStorage.setItem('maliyya_v5_db', JSON.stringify(importedData));
-        db = importedData;
-        alert("Məlumatlar yükləndi!");
-        init();
-      } catch (err) { alert("Xəta baş verdi!"); }
-    };
-    reader.readAsText(file);
+    detailAlert.innerHTML = issues.length > 0 ? issues.join("<br>") : (totalSpent > 0 ? "Hədəflər daxilindəsiniz. ✅" : "Xərcləri daxil edin.");
   }
 
   init();
