@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v18 - Final Fix</title>
+  <title>Maaş Hesabatı v18 - Web Fix</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -19,9 +19,51 @@
     .container { max-width: 1100px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
     .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .select-wrapper { position: relative; width: fit-content; }
+    .select-wrapper { position: relative; width: 100%; }
     .select-wrapper::after { content: "▼"; font-size: 10px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
-    select { appearance: none; padding-right: 30px !important; background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; outline: none; }
+    
+    /* Veb və Mobil üçün nizamlanmış inputlar */
+    .input-group { 
+      display: grid; 
+      grid-template-columns: 1fr; 
+      gap: 10px; 
+      padding: 15px; 
+      background: rgba(255,255,255,0.02); 
+    }
+
+    @media (min-width: 768px) {
+      .input-group { 
+        grid-template-columns: 2fr 1.5fr 1fr auto; 
+        align-items: center;
+      }
+      .select-wrapper { width: auto; }
+    }
+
+    select, input { 
+      background: #0d1117; 
+      border: 1px solid var(--border); 
+      color: #fff; 
+      padding: 12px; 
+      border-radius: 10px; 
+      font-size: 14px; 
+      width: 100%; 
+      outline: none;
+      height: 45px; /* Bütün xanalar eyni hündürlükdə */
+    }
+
+    .btn-primary { 
+      background: var(--accent); 
+      color: #000; 
+      border: none; 
+      padding: 0 25px; 
+      border-radius: 10px; 
+      font-weight: 900; 
+      cursor: pointer; 
+      height: 45px;
+      white-space: nowrap;
+    }
+
+    /* Qalan stillər toxunulmaz qaldı */
     .alert { padding: 15px; border-radius: 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-align: center; border: 1px solid transparent; transition: 0.3s ease; }
     .alert-info { background: rgba(46,229,157,0.1); color: var(--green); border-color: rgba(46,229,157,0.2); }
     .alert-warn { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
@@ -31,20 +73,16 @@
     .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
     .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
-    .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; }
+    .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; height: auto; padding: 0; }
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
     .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
     .tab-link.active { background: var(--accent); color: #000; }
-    .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
-    @media (min-width: 600px) { .input-group { flex-direction: row; } }
-    input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
-    .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; }
     .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
     .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
-    .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
+    .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; height: 35px; }
     .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
@@ -57,7 +95,7 @@
 <div class="container">
   <header>
     <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
-    <div class="select-wrapper"><select id="monthSelector" onchange="init()"></select></div>
+    <div class="select-wrapper" style="width: auto;"><select id="monthSelector" onchange="init()"></select></div>
   </header>
 
   <div id="statusMsg" class="alert alert-neutral">Yüklənir...</div>
@@ -77,7 +115,9 @@
 
   <div id="sectionPlan" class="card">
     <div class="input-group">
-      <div class="select-wrapper" style="width:100%"><select id="expCat" onchange="toggleOtherInput()"></select></div>
+      <div class="select-wrapper">
+        <select id="expCat" onchange="toggleOtherInput()"></select>
+      </div>
       <input type="text" id="otherCatInput" class="hidden" placeholder="Xərcin adı">
       <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
       <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
@@ -116,7 +156,6 @@
   let db = {};
   let currentMonth = "";
 
-  // Firebase üçün təhlükəsiz key yaratmaq (Nöqtəni silir)
   function safeKey(str) {
     return str.replace(/\./g, '').trim();
   }
@@ -194,7 +233,6 @@
 
   function updateTarget(cat, val) {
     const amount = parseFloat(val) || 0;
-    // Firebase-də nöqtə problem yaratdığı üçün safeKey istifadə edirik
     db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(amount);
   }
 
@@ -225,10 +263,8 @@
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
 
     anaTable.innerHTML = activeCats.map(cat => {
-      // Nöqtəsiz key ilə datanı oxuyuruq
       const target = targets[safeKey(cat)] || 0;
       totalTargetSum += target;
-
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
       const diff = target - spent;
@@ -266,12 +302,8 @@
         statusMsg.innerText = "Maaş daxil edin."; statusMsg.className = "alert alert-neutral"; 
     } else if (balance < 0) { 
         statusMsg.innerText = "BUDCƏ AŞILDI! (" + spentPerc.toFixed(0) + "%)"; statusMsg.className = "alert alert-warn"; 
-    } else if (spentPerc > 85) {
-        statusMsg.innerText = "KRİTİK: Maaşın " + spentPerc.toFixed(0) + "%-i bitib!"; statusMsg.className = "alert alert-warn";
-    } else if (spentPerc > 50) {
-        statusMsg.innerText = "ORTA: Maaşın " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
     } else {
-        statusMsg.innerText = "YAXŞI: Maaşın cəmi " + spentPerc.toFixed(0) + "%-i xərclənib."; statusMsg.className = "alert alert-info";
+        statusMsg.innerText = "Vəziyyət yaxşı (" + spentPerc.toFixed(0) + "% xərclənib)"; statusMsg.className = "alert alert-info";
     }
 
     document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
