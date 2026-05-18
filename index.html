@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v18 - Fix</title>
+  <title>Maaş Hesabatı v18 - Ultra Fix</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -20,10 +20,9 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
     .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
     
-    /* Select Ox Problemi Həlli */
     .select-wrapper { position: relative; width: 100%; }
     select { 
-      appearance: none; -webkit-appearance: none; 
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
       background: #0d1117; border: 1px solid var(--border); color: #fff; 
       padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; 
     }
@@ -32,7 +31,6 @@
       transform: translateY(-50%); color: var(--text-dim); pointer-events: none; 
     }
 
-    /* Progress Bar Animasiyası */
     .status-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
     .status-text { font-size: 14px; font-weight: 800; margin-bottom: 10px; text-align: center; display: block; }
     .progress-track { width: 100%; height: 10px; background: #0d1117; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
@@ -59,7 +57,6 @@
     .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
     .tab-link.active { background: var(--accent); color: #000; }
 
-    /* Input Group - Web Fix */
     .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
     @media (min-width: 600px) { .input-group { flex-direction: row; } }
     input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
@@ -70,13 +67,13 @@
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
     
-    /* Planlama Analizi Cədvəli */
     .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
     .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
     .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
     .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; }
+    .btn-del-cat:hover { opacity: 1; }
   </style>
 </head>
 <body>
@@ -87,7 +84,6 @@
     <div class="select-wrapper" style="width:150px"><select id="monthSelector" onchange="init()"></select></div>
   </header>
 
-  <!-- Status və Animasiyalı Skala -->
   <div class="status-card">
     <div id="statusMsg" class="status-text">Yüklənir...</div>
     <div class="progress-track">
@@ -123,6 +119,12 @@
   </div>
 
   <div id="sectionAna" class="card hidden">
+    <div class="input-group" style="border-bottom: 1px solid var(--border);">
+      <input type="text" id="newCatName" placeholder="Yeni Kateqoriya Adı (örn: Usta)">
+      <input type="number" id="newCatTarget" placeholder="Plan Məbləğ ₼">
+      <button class="btn-primary" onclick="addNewCategory()">Kat. Əlavə Et</button>
+    </div>
+
     <div style="display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; padding: 12px; background: rgba(255,255,255,0.03); font-size: 10px; color: var(--text-dim); font-weight: 800;">
         <div>AD</div><div>PLAN</div><div>XƏRC</div><div>FƏRQ</div><div></div>
     </div>
@@ -163,15 +165,22 @@
     selector.value = months[new Date().getMonth()] + "_2026";
   }
 
+  function updateCategoryDropdown(customCats) {
+    const select = document.getElementById('expCat');
+    const cCats = customCats || [];
+    const allCats = [...baseCategories.filter(c => c !== "Digər"), ...cCats, "Digər"];
+    select.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+
   function init() {
     setupMonthSelector();
     currentMonth = document.getElementById('monthSelector').value;
-    document.getElementById('expCat').innerHTML = baseCategories.map(c => `<option value="${c}">${c}</option>`).join('');
 
     db_fb.ref('maliyya_v12').on('value', (snapshot) => {
       db = snapshot.val() || {};
       if (!db[currentMonth]) db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
       document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
+      updateCategoryDropdown(db[currentMonth].customCats);
       render();
     });
   }
@@ -184,22 +193,59 @@
     db_fb.ref(`maliyya_v12/${currentMonth}/salary`).set(parseFloat(document.getElementById('monthlySalary').value) || 0);
   }
 
+  function addNewCategory() {
+    const name = document.getElementById('newCatName').value.trim();
+    const targetVal = parseFloat(document.getElementById('newCatTarget').value) || 0;
+    if (!name || name === "Digər") return alert("Düzgün kateqoriya adı yazın!");
+
+    let cCats = db[currentMonth].customCats || [];
+    if (!cCats.includes(name)) {
+      cCats.push(name);
+      db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cCats);
+    }
+    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(name)}`).set(targetVal);
+    
+    document.getElementById('newCatName').value = "";
+    document.getElementById('newCatTarget').value = "";
+  }
+
   function addExpense() {
     let cat = document.getElementById('expCat').value;
     const otherVal = document.getElementById('otherCatInput').value.trim();
     const amt = parseFloat(document.getElementById('expAmt').value);
-    if (cat === "Digər") { if (!otherVal) return; cat = otherVal; }
+    
+    if (cat === "Digər") {
+        if (!otherVal) return alert("Xərc adını yazın!");
+        cat = otherVal;
+        let cCats = db[currentMonth].customCats || [];
+        if (!cCats.includes(cat)) {
+            cCats.push(cat);
+            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cCats);
+        }
+    }
     if (!amt) return;
     let exps = db[currentMonth].expenses || [];
     exps.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
     db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
     document.getElementById('expAmt').value = "";
+    document.getElementById('otherCatInput').value = "";
+    document.getElementById('expCat').value = baseCategories[0];
+    toggleOtherInput();
   }
 
   function deleteExp(idx) {
     let exps = db[currentMonth].expenses;
     exps.splice(idx, 1);
     db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
+  }
+
+  function deleteCategory(cat) {
+    if (confirm(`"${cat}" silinsin? (Xərclər tam silinmir, lakin plan sıfırlanacaq)`)) {
+        db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).remove();
+        let cCats = db[currentMonth].customCats || [];
+        const newCats = cCats.filter(c => c !== cat);
+        db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
+    }
   }
 
   function updateTarget(cat, val) {
@@ -230,15 +276,21 @@
     let totalSpent = 0;
     let totalTargetSum = 0;
     let alerts = [];
-    const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || [])])];
+
+    // "Digər" daxil olmaqla bütün unikal xərc adlarını və hədəfləri toplayırıq
+    const recordedExpCats = expenses.map(e => e.cat);
+    const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || []), ...recordedExpCats])];
 
     anaTable.innerHTML = activeCats.map(cat => {
       const target = targets[safeKey(cat)] || 0;
       totalTargetSum += target;
+      
       const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
       totalSpent += spent;
+      
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
+      const isCustom = !baseCategories.includes(cat);
       
       if (target > 0) {
           if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq!</span>`);
@@ -246,11 +298,13 @@
       }
 
       return `<div class="ana-row">
-          <div><b>${cat}</b></div>
+          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
           <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
           <div style="font-weight:700">${spent}₼</div>
           <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
-          <div></div>
+          <div style="text-align:right">
+            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
+          </div>
           <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
         </div>`;
     }).join('');
@@ -264,7 +318,6 @@
     document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
     document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
     
-    // Progress Bar və Status Yeniləmə
     const progressBar = document.getElementById('mainProgressBar');
     const statusMsg = document.getElementById('statusMsg');
     
