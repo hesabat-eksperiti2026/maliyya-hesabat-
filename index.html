@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v18 - Ultra Fix</title>
+  <title>Maaş Hesabatı v18 - Ultra Fix + Notes</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -67,13 +67,18 @@
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
     
-    .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; font-size: 12px; }
     .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
-    .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+    .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; margin-bottom: 5px; }
     .prog-bar-fill { height: 100%; transition: 0.6s ease; }
     .hidden { display: none; }
     .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; }
     .btn-del-cat:hover { opacity: 1; }
+
+    /* Qeyd Bölməsinin Dizaynı */
+    .note-toggle-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0 4px; margin-left: 4px; outline: none; }
+    .note-container { grid-column: span 5; padding: 8px 12px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); margin: 5px 0 10px 0; }
+    .note-textarea { width: 100%; background: transparent; border: none; color: var(--text-main); font-size: 12px; font-family: inherit; resize: vertical; outline: none; min-height: 50px; }
   </style>
 </head>
 <body>
@@ -128,7 +133,7 @@
     <div style="display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; padding: 12px; background: rgba(255,255,255,0.03); font-size: 10px; color: var(--text-dim); font-weight: 800;">
         <div>AD</div><div>PLAN</div><div>XƏRC</div><div>FƏRQ</div><div></div>
     </div>
-    <div id="analyticsTable"></div>
+    <div id="analyticsTable" style="border-bottom: 1px solid var(--border);"></div>
   </div>
 </div>
 
@@ -240,8 +245,9 @@
   }
 
   function deleteCategory(cat) {
-    if (confirm(`"${cat}" silinsin? (Xərclər tam silinmir, lakin plan sıfırlanacaq)`)) {
+    if (confirm(`"${cat}" silinsin?`)) {
         db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).remove();
+        db_fb.ref(`maliyya_v12/${currentMonth}/notes/${safeKey(cat)}`).remove();
         let cCats = db[currentMonth].customCats || [];
         const newCats = cCats.filter(c => c !== cat);
         db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
@@ -252,6 +258,15 @@
     db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(parseFloat(val) || 0);
   }
 
+  function updateNote(cat, val) {
+    db_fb.ref(`maliyya_v12/${currentMonth}/notes/${safeKey(cat)}`).set(val);
+  }
+
+  function toggleNoteSection(catKey) {
+    const element = document.getElementById(`note_box_${catKey}`);
+    if (element) element.classList.toggle('hidden');
+  }
+
   function switchTab(t) {
     document.getElementById('sectionPlan').classList.toggle('hidden', t !== 'plan');
     document.getElementById('sectionAna').classList.toggle('hidden', t !== 'ana');
@@ -260,9 +275,10 @@
   }
 
   function render() {
-    const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [] };
+    const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [], notes: {} };
     const expenses = data.expenses || [];
     const targets = data.targets || {};
+    const notes = data.notes || {};
     
     document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
       <tr>
@@ -277,7 +293,6 @@
     let totalTargetSum = 0;
     let alerts = [];
 
-    // "Digər" daxil olmaqla bütün unikal xərc adlarını və hədəfləri toplayırıq
     const recordedExpCats = expenses.map(e => e.cat);
     const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || []), ...recordedExpCats])];
 
@@ -291,21 +306,38 @@
       const diff = target - spent;
       const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
       const isCustom = !baseCategories.includes(cat);
+      const catKey = safeKey(cat);
+
+      // Sırf İstədiyiniz kateqoriyalar üçün ox işarəsi məntiqi
+      const hasNotesFeature = (cat === "Bazarlıq" || cat === "Gündəlik bazarlıq");
+      const currentNoteValue = notes[catKey] || "";
       
       if (target > 0) {
           if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq!</span>`);
           else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət.</span>`);
       }
 
-      return `<div class="ana-row">
-          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap"><b>${cat}</b></div>
-          <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
-          <div style="font-weight:700">${spent}₼</div>
-          <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
-          <div style="text-align:right">
-            ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
+      return `
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.02); padding: 5px 0;">
+          <div class="ana-row">
+            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+              <b>${cat}</b>
+              ${hasNotesFeature ? `<button class="note-toggle-btn" onclick="toggleNoteSection('${catKey}')">▼</button>` : ''}
+            </div>
+            <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
+            <div style="font-weight:700">${spent}₼</div>
+            <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
+            <div style="text-align:right">
+              ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
+            </div>
+            <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
           </div>
-          <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
+          
+          ${hasNotesFeature ? `
+            <div id="note_box_${catKey}" class="note-container hidden">
+              <textarea class="note-textarea" placeholder="${cat} üçün qeydlər yazın (örn: kartof, yağ, un...)" onchange="updateNote('${cat}', this.value)">${currentNoteValue}</textarea>
+            </div>
+          ` : ''}
         </div>`;
     }).join('');
 
