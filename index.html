@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v18 - Ultra Fix + Notes</title>
+  <title>Maaş Hesabatı v18 - Ultra Fix + Auto Grow Notes</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -75,10 +75,10 @@
     .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; }
     .btn-del-cat:hover { opacity: 1; }
 
-    /* Qeyd Bölməsinin Dizaynı */
     .note-toggle-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0 4px; margin-left: 4px; outline: none; }
     .note-container { grid-column: span 5; padding: 8px 12px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); margin: 5px 0 10px 0; }
-    .note-textarea { width: 100%; background: transparent; border: none; color: var(--text-main); font-size: 12px; font-family: inherit; resize: vertical; outline: none; min-height: 50px; }
+    /* Dinamik böyüyən Textarea dizaynı */
+    .note-textarea { width: 100%; background: transparent; border: none; color: var(--text-main); font-size: 12px; font-family: inherit; resize: none; outline: none; min-height: 40px; overflow: hidden; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -177,6 +177,12 @@
     select.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('');
   }
 
+  function autoGrowTextarea(element) {
+    if (!element) return;
+    element.style.height = "auto";
+    element.style.height = element.scrollHeight + "px";
+  }
+
   function init() {
     setupMonthSelector();
     currentMonth = document.getElementById('monthSelector').value;
@@ -264,7 +270,13 @@
 
   function toggleNoteSection(catKey) {
     const element = document.getElementById(`note_box_${catKey}`);
-    if (element) element.classList.toggle('hidden');
+    if (element) {
+      element.classList.toggle('hidden');
+      if (!element.classList.contains('hidden')) {
+        const txt = element.querySelector('textarea');
+        autoGrowTextarea(txt);
+      }
+    }
   }
 
   function switchTab(t) {
@@ -308,7 +320,6 @@
       const isCustom = !baseCategories.includes(cat);
       const catKey = safeKey(cat);
 
-      // Sırf İstədiyiniz kateqoriyalar üçün ox işarəsi məntiqi
       const hasNotesFeature = (cat === "Bazarlıq" || cat === "Gündəlik bazarlıq");
       const currentNoteValue = notes[catKey] || "";
       
@@ -335,7 +346,10 @@
           
           ${hasNotesFeature ? `
             <div id="note_box_${catKey}" class="note-container hidden">
-              <textarea class="note-textarea" placeholder="${cat} üçün qeydlər yazın (örn: kartof, yağ, un...)" onchange="updateNote('${cat}', this.value)">${currentNoteValue}</textarea>
+              <textarea class="note-textarea" 
+                        placeholder="${cat} üçün qeydlər yazın..." 
+                        oninput="autoGrowTextarea(this)" 
+                        onchange="updateNote('${cat}', this.value)">${currentNoteValue}</textarea>
             </div>
           ` : ''}
         </div>`;
