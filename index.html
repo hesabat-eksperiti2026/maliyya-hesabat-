@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v19 - Şifrəli Giriş</title>
+  <title>Maaş Hesabatı v19</title>
   
-  <!-- Brauzer pəncərəsi üçün pul ikonu (Favicon) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -17,297 +16,192 @@
       --bg: #0b0e14; --card: #161b22; --accent: #ff9f1a; --green: #2ee59d;
       --red: #ff6b6b; --text-main: #f0f6fc; --text-dim: #8b949e; --border: #30363d;
     }
-    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); padding: 15px; }
     .container { max-width: 1100px; margin: 0 auto; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
     .brand { margin: 0; font-size: 22px; font-weight: 900; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
     
     .select-wrapper { position: relative; width: 100%; }
-    select { 
-      appearance: none; -webkit-appearance: none; -moz-appearance: none;
-      background: #0d1117; border: 1px solid var(--border); color: #fff; 
-      padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; 
-    }
-    .select-wrapper::after { 
-      content: "▼"; font-size: 10px; position: absolute; right: 12px; top: 50%; 
-      transform: translateY(-50%); color: var(--text-dim); pointer-events: none; 
-    }
-
+    select, input { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
+    
     .status-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
     .status-text { font-size: 14px; font-weight: 800; margin-bottom: 10px; text-align: center; display: block; }
     .progress-track { width: 100%; height: 10px; background: #0d1117; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-    .progress-bar { 
-      height: 100%; width: 0%; background: linear-gradient(90deg, var(--green), var(--accent)); 
-      transition: width 0.8s ease; position: relative;
-    }
-    .progress-bar::after {
-      content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-      background-image: linear-gradient(-45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-      background-size: 20px 20px; animation: move 2s linear infinite;
-    }
-    @keyframes move { 0% { background-position: 0 0; } 100% { background-position: 20px 20px; } }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green), var(--accent)); transition: width 0.8s ease; }
 
-    .detail-msg { font-size: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 20px; color: var(--text-main); line-height: 1.8; border-left: 3px solid var(--accent); }
-    
     .top-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
     .stat-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
     .stat-box label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; }
     .stat-box .val { font-size: 16px; font-weight: 800; display: block; }
-    .stat-box input { background: none; border: none; color: var(--accent); font-size: 16px; font-weight: 800; width: 100%; outline: none; }
 
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-    .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .tab-link { flex: 1; background: var(--card); border: none; color: var(--text-dim); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; }
     .tab-link.active { background: var(--accent); color: #000; }
 
-    .input-group { display: flex; flex-direction: column; gap: 10px; padding: 15px; background: rgba(255,255,255,0.02); }
-    @media (min-width: 600px) { .input-group { flex-direction: row; } }
-    input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
-    .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; min-width: 120px; }
+    .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
     .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
-    td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 13px; }
+    td, th { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.02); }
     
-    .ana-row { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; gap: 8px; padding: 12px; align-items: center; font-size: 12px; }
-    .target-input { width: 100% !important; padding: 6px !important; font-size: 13px !important; text-align: center; border: 1px solid var(--border); border-radius: 6px; background: #0d1117; color: white; }
-    .prog-bar-bg { grid-column: span 5; height: 4px; background: #30363d; border-radius: 5px; overflow: hidden; margin-top: 5px; margin-bottom: 5px; }
-    .prog-bar-fill { height: 100%; transition: 0.6s ease; }
-    .hidden { display: none; }
-    .btn-del-cat { background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; opacity: 0.6; }
-    .btn-del-cat:hover { opacity: 1; }
+    .hidden { display: none !important; }
 
-    .note-toggle-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0 4px; margin-left: 4px; outline: none; }
-    .note-container { grid-column: span 5; padding: 8px 12px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); margin: 5px 0 10px 0; }
-    .note-textarea { width: 100%; background: transparent; border: none; color: var(--text-main); font-size: 12px; font-family: inherit; resize: none; outline: none; min-height: 40px; overflow: hidden; line-height: 1.5; }
-
-    #loginScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-    .login-box { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center; }
+    /* Login Screen */
+    #loginScreen { position: fixed; inset: 0; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 10000; }
+    .login-box { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
   </style>
 </head>
 <body>
 
 <div id="loginScreen">
   <div class="login-box">
-    <h2 style="color:var(--accent); margin-top:0; font-weight:900;">Giriş Şifrəsi</h2>
-    <p style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">Ailə büdcəsinə baxmaq üçün şifrəni daxil edin</p>
-    <input type="password" id="passInput" placeholder="Şifrə" style="text-align:center; font-size:18px; letter-spacing:4px; margin-bottom:15px;">
-    <button class="btn-primary" style="width:100%;" onclick="checkPassword()">Daxil Ol</button>
+    <h2 style="color:var(--accent); margin-bottom:10px;">Giriş</h2>
+    <p style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">Şifrəni daxil edin</p>
+    <input type="password" id="passInput" placeholder="****" style="text-align:center; font-size:24px; margin-bottom:15px;">
+    <button class="btn-primary" style="width:100%" onclick="checkPassword()">DAXİL OL</button>
   </div>
 </div>
 
 <div id="mainApp" class="container hidden">
   <header>
-    <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
-    <div class="select-wrapper" style="width:150px"><select id="monthSelector" onchange="init()"></select></div>
+    <div class="brand"><span>💸</span> Maaş Hesabatı</div>
+    <div style="width:140px"><select id="monthSelector" onchange="init()"></select></div>
   </header>
 
   <div class="status-card">
     <div id="statusMsg" class="status-text">Yüklənir...</div>
-    <div class="progress-track">
-      <div id="mainProgressBar" class="progress-bar"></div>
-    </div>
+    <div class="progress-track"><div id="mainProgressBar" class="progress-bar"></div></div>
   </div>
 
-  <div id="detailAlert" class="detail-msg">Analiz hazırlanır...</div>
-
   <div class="top-stats">
-    <div class="stat-box"><label>Aylıq Maaş</label><input type="number" id="monthlySalary" onchange="updateSalary()" placeholder="0"></div>
-    <div class="stat-box"><label>Planlanan Cəm</label><span class="val" id="totalPlanned" style="color:var(--accent)">0 ₼</span></div>
-    <div class="stat-box"><label>Ümumi Xərc</label><span class="val" id="totalSpent">0 ₼</span></div>
-    <div class="stat-box"><label>Qalıq Balans</label><span class="val" id="totalBalance">0 ₼</span></div>
+    <div class="stat-box"><label>Maaş</label><input type="number" id="monthlySalary" onchange="updateSalary()" style="padding:0; background:none; border:none; font-size:16px; font-weight:800; color:var(--accent)"></div>
+    <div class="stat-box"><label>Plan</label><span class="val" id="totalPlanned">0 ₼</span></div>
+    <div class="stat-box"><label>Xərc</label><span class="val" id="totalSpent">0 ₼</span></div>
+    <div class="stat-box"><label>Qalıq</label><span class="val" id="totalBalance">0 ₼</span></div>
   </div>
 
   <div class="nav-tabs">
     <button id="tabPlan" class="tab-link active" onclick="switchTab('plan')">Xərclər</button>
-    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Planlama Analizi</button>
+    <button id="tabAna" class="tab-link" onclick="switchTab('ana')">Analiz</button>
   </div>
 
   <div id="sectionPlan" class="card">
-    <div class="input-group">
-      <div class="select-wrapper"><select id="expCat" onchange="toggleOtherInput()"></select></div>
-      <input type="text" id="otherCatInput" class="hidden" placeholder="Xərcin adı">
-      <input type="number" id="expAmt" placeholder="Məbləğ ₼" inputmode="decimal">
-      <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
+    <div style="padding:15px; display:flex; flex-direction:column; gap:10px;">
+        <select id="expCat"></select>
+        <input type="number" id="expAmt" placeholder="Məbləğ">
+        <button class="btn-primary" onclick="addExpense()">Əlavə Et</button>
     </div>
-    <table>
-      <thead><tr><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th style="text-align:right">SİL</th></tr></thead>
-      <tbody id="expenseTable"></tbody>
-    </table>
+    <table><tbody id="expenseTable"></tbody></table>
   </div>
 
   <div id="sectionAna" class="card hidden">
-    <div class="input-group" style="border-bottom: 1px solid var(--border);">
-      <input type="text" id="newCatName" placeholder="Yeni Kateqoriya Adı (örn: Usta)">
-      <input type="number" id="newCatTarget" placeholder="Plan Məbləğ ₼">
-      <button class="btn-primary" onclick="addNewCategory()">Kat. Əlavə Et</button>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.3fr; padding: 12px; background: rgba(255,255,255,0.03); font-size: 10px; color: var(--text-dim); font-weight: 800;">
-        <div>AD</div><div>PLAN</div><div>XƏRC</div><div>FƏRQ</div><div></div>
-    </div>
-    <div id="analyticsTable" style="border-bottom: 1px solid var(--border);"></div>
+    <div id="analyticsTable"></div>
   </div>
 </div>
 
 <script>
-  const RAZ_PASSWORD = "1907";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsYLwxEwQpRliICJhr6cklZ5kE-P0jyko",
-    authDomain: "maas-hesabat.firebaseapp.com",
-    databaseURL: "https://maas-hesabat-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "maas-hesabat",
-    storageBucket: "maas-hesabat.firebasestorage.app",
-    messagingSenderId: "897685289394",
-    appId: "1:897685289394:web:51861c7bf96b908dbd4cab"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db_fb = firebase.database();
-
-  const baseCategories = ["Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", "Baxım", "Həkim", "Gündəlik bazarlıq", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"];
-  const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+  const RAZ_PASS = "1907";
   
-  let db = {};
-  let currentMonth = "";
-
   function checkPassword() {
-    const input = document.getElementById('passInput').value;
-    if(input === RAZ_PASSWORD) {
+    const val = document.getElementById('passInput').value;
+    if(val === RAZ_PASS) {
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
-      init();
+      startApp();
     } else {
-      alert("Şifrə yanlışdır!");
+      alert("Şifrə səhvdir!");
     }
   }
 
-  document.getElementById('passInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') checkPassword();
-  });
+  document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') checkPassword(); });
 
-  function safeKey(str) { return str.replace(/\./g, '').trim(); }
+  function startApp() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsYLwxEwQpRliICJhr6cklZ5kE-P0jyko",
+      authDomain: "maas-hesabat.firebaseapp.com",
+      databaseURL: "https://maas-hesabat-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "maas-hesabat",
+      storageBucket: "maas-hesabat.firebasestorage.app",
+      messagingSenderId: "897685289394",
+      appId: "1:897685289394:web:51861c7bf96b908dbd4cab"
+    };
 
-  function setupMonthSelector() {
-    const selector = document.getElementById('monthSelector');
-    if(selector.options.length > 0) return;
-    months.forEach(m => {
-        let opt = document.createElement('option');
-        opt.value = `${m}_2026`; opt.innerText = `${m} 2026`;
-        selector.appendChild(opt);
-    });
-    selector.value = months[new Date().getMonth()] + "_2026";
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    init();
   }
 
-  function updateCategoryDropdown(customCats) {
-    const select = document.getElementById('expCat');
-    const cCats = customCats || [];
-    const allCats = [...baseCategories.filter(c => c !== "Digər"), ...cCats, "Digər"];
-    select.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('');
-  }
-
-  function autoGrowTextarea(element) {
-    if (!element) return;
-    element.style.height = "auto";
-    element.style.height = element.scrollHeight + "px";
-  }
+  const baseCategories = ["Kredit", "Şaxnuz maaş", "Komunal", "Xalidə x. komunal", "Kontur", "Borc", "Ehtiyat pul", "Benzin", "İstirahət", "Paltar", "Baxım", "Həkim", "Gündəlik bazarlıq", "Bazarlıq", "ARslan bazarlıq", "Ət", "Restoran", "Digər"];
+  const months = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+  let db = {};
+  let currentMonth = "";
 
   function init() {
-    setupMonthSelector();
-    currentMonth = document.getElementById('monthSelector').value;
+    const selector = document.getElementById('monthSelector');
+    if(selector.options.length === 0) {
+        months.forEach(m => {
+            let opt = document.createElement('option');
+            opt.value = m + "_2026"; opt.innerText = m + " 2026";
+            selector.appendChild(opt);
+        });
+        selector.value = months[new Date().getMonth()] + "_2026";
+    }
+    currentMonth = selector.value;
 
-    db_fb.ref('maliyya_v12').on('value', (snapshot) => {
-      db = snapshot.val() || {};
-      if (!db[currentMonth]) db[currentMonth] = { salary: 0, expenses: [], targets: {}, customCats: [] };
-      document.getElementById('monthlySalary').value = db[currentMonth].salary || "";
-      updateCategoryDropdown(db[currentMonth].customCats);
+    firebase.database().ref('maliyya_v12').on('value', (snap) => {
+      db = snap.val() || {};
       render();
     });
   }
 
-  function toggleOtherInput() {
-    document.getElementById('otherCatInput').classList.toggle('hidden', document.getElementById('expCat').value !== "Digər");
+  function render() {
+    const data = db[currentMonth] || { salary: 0, expenses: [], targets: {} };
+    document.getElementById('monthlySalary').value = data.salary || 0;
+    
+    const exps = data.expenses || [];
+    document.getElementById('expenseTable').innerHTML = exps.map((e, i) => `
+      <tr>
+        <td><b>${e.cat}</b><br><small>${e.date}</small></td>
+        <td>${e.amt} ₼</td>
+        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:18px;">&times;</button></td>
+      </tr>
+    `).join('');
+
+    const cats = [...new Set([...baseCategories, ...(data.customCats || [])])];
+    document.getElementById('expCat').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    let totalSpent = exps.reduce((s, e) => s + e.amt, 0);
+    let totalPlanned = Object.values(data.targets || {}).reduce((s, v) => s + v, 0);
+    
+    document.getElementById('totalSpent').innerText = totalSpent + " ₼";
+    document.getElementById('totalPlanned').innerText = totalPlanned + " ₼";
+    document.getElementById('totalBalance').innerText = (data.salary - totalSpent) + " ₼";
+    
+    let perc = data.salary > 0 ? (totalSpent / data.salary) * 100 : 0;
+    document.getElementById('mainProgressBar').style.width = Math.min(perc, 100) + "%";
+    document.getElementById('statusMsg').innerText = `Maaşın ${perc.toFixed(0)}%-i xərclənib.`;
   }
 
   function updateSalary() {
-    db_fb.ref(`maliyya_v12/${currentMonth}/salary`).set(parseFloat(document.getElementById('monthlySalary').value) || 0);
-  }
-
-  function addNewCategory() {
-    const name = document.getElementById('newCatName').value.trim();
-    const targetVal = parseFloat(document.getElementById('newCatTarget').value) || 0;
-    if (!name || name === "Digər") return alert("Düzgün kateqoriya adı yazın!");
-
-    let cCats = db[currentMonth].customCats || [];
-    if (!cCats.includes(name)) {
-      cCats.push(name);
-      db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cCats);
-    }
-    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(name)}`).set(targetVal);
-    
-    document.getElementById('newCatName').value = "";
-    document.getElementById('newCatTarget').value = "";
+    const val = parseFloat(document.getElementById('monthlySalary').value) || 0;
+    firebase.database().ref(`maliyya_v12/${currentMonth}/salary`).set(val);
   }
 
   function addExpense() {
-    let cat = document.getElementById('expCat').value;
-    const otherVal = document.getElementById('otherCatInput').value.trim();
+    const cat = document.getElementById('expCat').value;
     const amt = parseFloat(document.getElementById('expAmt').value);
+    if(!amt) return;
     
-    if (cat === "Digər") {
-        if (!otherVal) return alert("Xərc adını yazın!");
-        cat = otherVal;
-        let cCats = db[currentMonth].customCats || [];
-        if (!cCats.includes(cat)) {
-            cCats.push(cat);
-            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cat);
-        }
-    }
-    if (!amt) return;
-    let exps = db[currentMonth].expenses || [];
+    let exps = (db[currentMonth] && db[currentMonth].expenses) || [];
     exps.unshift({ cat, amt, date: new Date().toLocaleDateString('az-AZ') });
-    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
+    firebase.database().ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
     document.getElementById('expAmt').value = "";
-    document.getElementById('otherCatInput').value = "";
-    document.getElementById('expCat').value = baseCategories[0];
-    toggleOtherInput();
   }
 
-  function deleteExp(idx) {
+  function deleteExp(i) {
     let exps = db[currentMonth].expenses;
-    exps.splice(idx, 1);
-    db_fb.ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
-  }
-
-  function deleteCategory(cat) {
-    if (confirm(`"${cat}" silinsin?`)) {
-        db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).remove();
-        db_fb.ref(`maliyya_v12/${currentMonth}/notes/${safeKey(cat)}`).remove();
-        let cCats = db[currentMonth].customCats || [];
-        const newCats = cCats.filter(c => c !== cat);
-        db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(newCats);
-    }
-  }
-
-  function updateTarget(cat, val) {
-    db_fb.ref(`maliyya_v12/${currentMonth}/targets/${safeKey(cat)}`).set(parseFloat(val) || 0);
-  }
-
-  function updateNote(cat, val) {
-    db_fb.ref(`maliyya_v12/${currentMonth}/notes/${safeKey(cat)}`).set(val);
-  }
-
-  function toggleNoteSection(catKey) {
-    const element = document.getElementById(`note_box_${catKey}`);
-    if (element) {
-      element.classList.toggle('hidden');
-      if (!element.classList.contains('hidden')) {
-        const txt = element.querySelector('textarea');
-        autoGrowTextarea(txt);
-      }
-    }
+    exps.splice(i, 1);
+    firebase.database().ref(`maliyya_v12/${currentMonth}/expenses`).set(exps);
   }
 
   function switchTab(t) {
@@ -315,99 +209,6 @@
     document.getElementById('sectionAna').classList.toggle('hidden', t !== 'ana');
     document.getElementById('tabPlan').classList.toggle('active', t === 'plan');
     document.getElementById('tabAna').classList.toggle('active', t === 'ana');
-  }
-
-  function render() {
-    const data = db[currentMonth] || { salary: 0, expenses: [], targets: {}, customCats: [], notes: {} };
-    const expenses = data.expenses || [];
-    const targets = data.targets || {};
-    const notes = data.notes || {};
-    
-    document.getElementById('expenseTable').innerHTML = expenses.map((item, i) => `
-      <tr>
-        <td><b>${item.cat}</b><br><small style="color:var(--text-dim)">${item.date}</small></td>
-        <td style="font-weight:700">${item.amt} ₼</td>
-        <td style="text-align:right"><button onclick="deleteExp(${i})" style="background:none; border:none; color:var(--red); font-size:20px; cursor:pointer;">&times;</button></td>
-      </tr>
-    `).join('');
-
-    const anaTable = document.getElementById('analyticsTable');
-    let totalSpent = 0;
-    let totalTargetSum = 0;
-    let alerts = [];
-
-    const recordedExpCats = expenses.map(e => e.cat);
-    const activeCats = [...new Set([...baseCategories.filter(c => c !== "Digər"), ...(data.customCats || []), ...recordedExpCats])];
-
-    anaTable.innerHTML = activeCats.map(cat => {
-      const target = targets[safeKey(cat)] || 0;
-      totalTargetSum += target;
-      
-      const spent = expenses.filter(e => e.cat === cat).reduce((s, e) => s + e.amt, 0);
-      totalSpent += spent;
-      
-      const diff = target - spent;
-      const perc = target > 0 ? Math.min((spent / target) * 100, 100) : (spent > 0 ? 100 : 0);
-      const isCustom = !baseCategories.includes(cat);
-      const catKey = safeKey(cat);
-
-      const hasNotesFeature = (cat === "Bazarlıq" || cat === "Gündəlik bazarlıq");
-      const currentNoteValue = notes[catKey] || "";
-      
-      if (target > 0) {
-          if (diff < 0) alerts.push(`<span style="color:var(--red)">🔴 <b>${cat}</b>: Plandan <b>${Math.abs(diff.toFixed(0))}₼</b> artıq!</span>`);
-          else if (spent > 0) alerts.push(`<span style="color:var(--green)">🟢 <b>${cat}</b>: Plandan <b>${diff.toFixed(0)}₼</b> qənaət.</span>`);
-      }
-
-      return `
-        <div style="border-bottom: 1px solid rgba(255,255,255,0.02); padding: 5px 0;">
-          <div class="ana-row">
-            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
-              <b>${cat}</b>
-              ${hasNotesFeature ? `<button class="note-toggle-btn" onclick="toggleNoteSection('${catKey}')">▼</button>` : ''}
-            </div>
-            <div><input type="number" class="target-input" value="${target}" onchange="updateTarget('${cat}', this.value)"></div>
-            <div style="font-weight:700">${spent}₼</div>
-            <div style="color:${diff < 0 ? 'var(--red)' : 'var(--green)'}; font-weight:700">${diff.toFixed(0)}₼</div>
-            <div style="text-align:right">
-              ${isCustom ? `<button class="btn-del-cat" onclick="deleteCategory('${cat}')">🗑️</button>` : ''}
-            </div>
-            <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${perc}%; background:${diff < 0 ? 'var(--red)' : 'var(--accent)'}"></div></div>
-          </div>
-          
-          ${hasNotesFeature ? `
-            <div id="note_box_${catKey}" class="note-container hidden">
-              <textarea class="note-textarea" 
-                        placeholder="${cat} üçün qeydlər yazın..." 
-                        oninput="autoGrowTextarea(this)" 
-                        onchange="updateNote('${cat}', this.value)">${currentNoteValue}</textarea>
-            </div>
-          ` : ''}
-        </div>`;
-    }).join('');
-
-    const salary = data.salary || 0;
-    const balance = salary - totalSpent;
-    const spentPerc = salary > 0 ? Math.min((totalSpent / salary) * 100, 100) : 0;
-    
-    document.getElementById('totalPlanned').innerText = totalTargetSum.toFixed(0) + " ₼";
-    document.getElementById('totalSpent').innerText = totalSpent.toFixed(0) + " ₼";
-    document.getElementById('totalBalance').innerText = balance.toFixed(0) + " ₼";
-    document.getElementById('totalBalance').style.color = balance < 0 ? 'var(--red)' : 'var(--green)';
-    
-    const progressBar = document.getElementById('mainProgressBar');
-    const statusMsg = document.getElementById('statusMsg');
-    
-    progressBar.style.width = spentPerc + "%";
-    progressBar.style.background = spentPerc > 90 ? 'var(--red)' : 'var(--green)';
-
-    if (salary === 0) { 
-      statusMsg.innerText = "Maaş daxil edin."; 
-    } else {
-      statusMsg.innerText = `Maaşın ${spentPerc.toFixed(0)}%-i xərclənib. (${balance.toFixed(0)} ₼ qalıb)`;
-    }
-
-    document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
   }
 </script>
 </body>
