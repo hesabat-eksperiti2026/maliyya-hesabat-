@@ -90,7 +90,7 @@
 <div class="container">
   <header>
     <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
-    <div class="select-wrapper" style="width:150px"><select id="monthSelector" onchange="init()"></select></div>
+    <div class="select-wrapper" style="width:150px"><select id="monthSelector" onchange="changeMonth()"></select></div>
   </header>
 
   <div class="status-card">
@@ -174,7 +174,20 @@
         opt.value = `${m}_2026`; opt.innerText = `${m} 2026`;
         selector.appendChild(opt);
     });
-    selector.value = months[new Date().getMonth()] + "_2026";
+    
+    // Əgər yaddaşda seçilmiş ay varsa onu götürür, yoxdursa cari ayı seçir
+    const savedMonth = localStorage.getItem('selectedMonth');
+    if (savedMonth) {
+        selector.value = savedMonth;
+    } else {
+        selector.value = months[new Date().getMonth()] + "_2026";
+    }
+  }
+
+  function changeMonth() {
+    const selector = document.getElementById('monthSelector');
+    localStorage.setItem('selectedMonth', selector.value);
+    init();
   }
 
   function updateCategoryDropdown(customCats) {
@@ -293,7 +306,7 @@
     document.getElementById('tabAna').classList.toggle('active', t === 'ana');
   }
 
-  /* Excel İxrac Funksiyası */
+  /* Excel Səliqəli Kolon İxrac Funksiyası */
   function exportToExcel() {
     const data = db[currentMonth] || { expenses: [] };
     const expenses = data.expenses || [];
@@ -303,15 +316,14 @@
       return;
     }
 
-    // CSV Formatı (Səliqəli Excel sütunları üçün)
-    let csvContent = "\uFEFF"; // Azərbaycan hərflərinin düzgün görünməsi üçün BOM effekti
-    csvContent += "Sıra,Kateqoriya,Məbləğ (₼),Tarix\n";
+    // Excel xanalarının kolonlara bölünməsi üçün ";" (Nöqtəli vergül) istifadə edildi
+    let csvContent = "\uFEFF"; 
+    csvContent += "Sıra;Kateqoriya;Məbləğ (₼);Tarix\n";
 
     expenses.forEach((item, index) => {
-      csvContent += `${index + 1},"${item.cat}",${item.amt},${item.date}\n`;
+      csvContent += `${index + 1};${item.cat};${item.amt};${item.date}\n`;
     });
 
-    // Fayl olaraq yükləmə prosesi
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
