@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-  <title>Maaş Hesabatı v18 - Ultra Fix + Auto Grow Notes</title>
+  <title>Maaş Hesabatı v19 - Şifrəli Giriş</title>
+  
+  <!-- Brauzer pəncərəsi üçün pul ikonu (Favicon) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -77,13 +80,24 @@
 
     .note-toggle-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0 4px; margin-left: 4px; outline: none; }
     .note-container { grid-column: span 5; padding: 8px 12px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); margin: 5px 0 10px 0; }
-    /* Dinamik böyüyən Textarea dizaynı */
     .note-textarea { width: 100%; background: transparent; border: none; color: var(--text-main); font-size: 12px; font-family: inherit; resize: none; outline: none; min-height: 40px; overflow: hidden; line-height: 1.5; }
+
+    #loginScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+    .login-box { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center; }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div id="loginScreen">
+  <div class="login-box">
+    <h2 style="color:var(--accent); margin-top:0; font-weight:900;">Giriş Şifrəsi</h2>
+    <p style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">Ailə büdcəsinə baxmaq üçün şifrəni daxil edin</p>
+    <input type="password" id="passInput" placeholder="Şifrə" style="text-align:center; font-size:18px; letter-spacing:4px; margin-bottom:15px;">
+    <button class="btn-primary" style="width:100%;" onclick="checkPassword()">Daxil Ol</button>
+  </div>
+</div>
+
+<div id="mainApp" class="container hidden">
   <header>
     <div class="brand" onclick="window.location.reload()"><span>💸</span> Maaş Hesabatı</div>
     <div class="select-wrapper" style="width:150px"><select id="monthSelector" onchange="init()"></select></div>
@@ -138,6 +152,8 @@
 </div>
 
 <script>
+  const RAZ_PASSWORD = "1907";
+
   const firebaseConfig = {
     apiKey: "AIzaSyAsYLwxEwQpRliICJhr6cklZ5kE-P0jyko",
     authDomain: "maas-hesabat.firebaseapp.com",
@@ -156,6 +172,21 @@
   
   let db = {};
   let currentMonth = "";
+
+  function checkPassword() {
+    const input = document.getElementById('passInput').value;
+    if(input === RAZ_PASSWORD) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      init();
+    } else {
+      alert("Şifrə yanlışdır!");
+    }
+  }
+
+  document.getElementById('passInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
 
   function safeKey(str) { return str.replace(/\./g, '').trim(); }
 
@@ -231,7 +262,7 @@
         let cCats = db[currentMonth].customCats || [];
         if (!cCats.includes(cat)) {
             cCats.push(cat);
-            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cCats);
+            db_fb.ref(`maliyya_v12/${currentMonth}/customCats`).set(cat);
         }
     }
     if (!amt) return;
@@ -378,8 +409,6 @@
 
     document.getElementById('detailAlert').innerHTML = alerts.length > 0 ? alerts.join("<br>") : "Analiz hazırlanır...";
   }
-
-  init();
 </script>
 </body>
 </html>
