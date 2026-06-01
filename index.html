@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
   <title>Maaş Hesabatı v18 - Ultra Fix + Auto Grow Notes</title>
   
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -62,6 +64,9 @@
     input, select { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-size: 14px; width: 100%; outline: none; }
     .btn-primary { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; cursor: pointer; min-width: 120px; }
 
+    /* Excel Düyməsi Üçün Yaşıl Dizayn */
+    .btn-excel { background: #2ee59d; color: #000; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin: 15px; }
+
     .card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; }
     th { background: rgba(255,255,255,0.02); padding: 12px; text-align: left; font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
@@ -77,7 +82,6 @@
 
     .note-toggle-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0 4px; margin-left: 4px; outline: none; }
     .note-container { grid-column: span 5; padding: 8px 12px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); margin: 5px 0 10px 0; }
-    /* Dinamik böyüyən Textarea dizaynı */
     .note-textarea { width: 100%; background: transparent; border: none; color: var(--text-main); font-size: 12px; font-family: inherit; resize: none; outline: none; min-height: 40px; overflow: hidden; line-height: 1.5; }
   </style>
 </head>
@@ -121,6 +125,9 @@
       <thead><tr><th>KATEQORİYA</th><th>MƏBLƏĞ</th><th style="text-align:right">SİL</th></tr></thead>
       <tbody id="expenseTable"></tbody>
     </table>
+    <div style="text-align: right;">
+      <button class="btn-excel" onclick="exportToExcel()">📊 Excel Yüklə</button>
+    </div>
   </div>
 
   <div id="sectionAna" class="card hidden">
@@ -284,6 +291,37 @@
     document.getElementById('sectionAna').classList.toggle('hidden', t !== 'ana');
     document.getElementById('tabPlan').classList.toggle('active', t === 'plan');
     document.getElementById('tabAna').classList.toggle('active', t === 'ana');
+  }
+
+  /* Excel İxrac Funksiyası */
+  function exportToExcel() {
+    const data = db[currentMonth] || { expenses: [] };
+    const expenses = data.expenses || [];
+    
+    if (expenses.length === 0) {
+      alert("Yükləmək üçün hər hansı bir xərc tapılmadı!");
+      return;
+    }
+
+    // CSV Formatı (Səliqəli Excel sütunları üçün)
+    let csvContent = "\uFEFF"; // Azərbaycan hərflərinin düzgün görünməsi üçün BOM effekti
+    csvContent += "Sıra,Kateqoriya,Məbləğ (₼),Tarix\n";
+
+    expenses.forEach((item, index) => {
+      csvContent += `${index + 1},"${item.cat}",${item.amt},${item.date}\n`;
+    });
+
+    // Fayl olaraq yükləmə prosesi
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Xərclər_${currentMonth}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   function render() {
